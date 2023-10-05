@@ -388,7 +388,7 @@ and render_style_rule = (ident, rule: style_rule): Parsetree.expression => {
         "*j",
         [Generate_lib.ReScriptAttributes.template(~loc)],
       )
-    | _ => ("js", [])
+    | _ => ("js", []) // This is responsible for such rendering -- <{js|to|js}>
     };
 
   let selector_name =

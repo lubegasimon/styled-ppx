@@ -4,7 +4,12 @@ open Css_types
 
 %}
 
-%token EOF
+/*
+  %token -> tells the parser generator that you are defining a new token [EOF].
+  End of file indicates the end of the input source of a file being parsed.
+*/
+
+%token EOF 
 %token LEFT_BRACE
 %token RIGHT_BRACE
 %token LEFT_PAREN
@@ -21,6 +26,10 @@ open Css_types
 %token ASTERISK
 %token COMMA
 %token WS
+/*
+  %token -> tells the parser generator that you are defining a new token <INDENT>
+  of type <string>
+*/
 %token <string> IDENT
 %token <string> TAG
 %token <string> STRING
@@ -42,14 +51,40 @@ open Css_types
 %token <string * string> DIMENSION
 %token <string list> VARIABLE
 
+/*
+  [%start] -> Indicates the starting symbol of the parser. The starting symbol is the initial
+  non terminal symbol from which the parsing process beginning
+
+  [stylesheet] -> indicates the name of the starting symbol itself
+
+  [<stylesheet>] -> indicates the type of the value produced 
+
+*/
+
 %start <stylesheet> stylesheet
 %start <rule_list> declaration_list
 %start <declaration> declaration
 %start <rule_list> keyframes
 
-%%
+%% // This denotes the end of the grammar rules and the beginning of the code
 
+/*
+  production rule
+*/
 stylesheet: s = stylesheet_without_eof; EOF { s }
+/*
+  [stylesheet] represents the name of the production rule.
+
+  [s = stylesheet_without_eof] indicates the action to take when [stylesheet] is parsed.
+  it assigns the result of parsing [stylesheet_without_eof] to variable [s].
+
+  [stylesheet_without_eof] is the production rule or a set of rules that define the syntax
+  of the stylesheet but without considering the end of file
+
+  [EOF { s }] -> indicates what should happen when the parser reaches EOF, it returns the
+  value of [s] which represents the parsed [stylesheet]. 
+*/
+
 stylesheet_without_eof: rs = loc(list(rule)) { rs }
 
 declaration_list:
@@ -90,6 +125,25 @@ paren_block (X): xs = delimited(LEFT_PAREN, X, RIGHT_PAREN) { xs }
 /* https://www.w3.org/TR/mediaqueries-5 */
 /* Parsing with this approach is almost as good the entire spec */
 
+/*
+  In this context, prelude refers to the initial section of the code or
+  declarations that come before the main body of the parsing rules.
+  The prelude contatins esential definitions, imports, or set up code
+  necessary to support the parsing process. It is often used to set up
+  environment for parsing and may include the following;
+    - import statements: import modules or libraries that provide parsing-related
+    functions and utilities
+    - Global declarations: for variables, data structures, or functions that are
+    used throughout the parsing process
+    - lexer Setup :  If the lexer is separate from the parser, the prelude may
+    contain configuration or setup code for the lexer.
+    - parser configuration: It may include settings or configuration options for
+    the parser itself, such as error handling behavior or parsing modes
+    - custom data types
+    - utility functions: utility functions or helper functions that assist in the
+    parsing process.
+    - Documentation: explain the purpose and usage of the parser.
+*/
 prelude: xs = loption(nonempty_list(loc(value_in_prelude))) { xs }
 
 /* Missing grammars: */

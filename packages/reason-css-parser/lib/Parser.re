@@ -3,8 +3,11 @@ open Combinator;
 open Modifier;
 open Rule.Match;
 open Parser_helper;
+open Css_spec_parser;
 
-module Lexer = Reason_css_lexer;
+// module Lexer = Reason_css_lexer;
+module Lexer = Css_spec_parser;
+module Tokens = Css_spec_parser.Tokens
 
 let rec _legacy_gradient = [%value.rec
   "<-webkit-gradient()> | <-legacy-linear-gradient> | <-legacy-repeating-linear-gradient> | <-legacy-radial-gradient> | <-legacy-repeating-radial-gradient>"

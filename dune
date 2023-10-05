@@ -10,6 +10,7 @@
   css
   emotion
   emotion-hash
+  lexer
   css-spec-parser
   parser
   ppx

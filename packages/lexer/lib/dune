@@ -1,0 +1,6 @@
+(library
+ (name styled_ppx_lexer)
+ (public_name styled-ppx.styled-ppx-lexer)
+ (libraries compiler-libs sedlex ppxlib menhirLib)
+ (preprocess
+  (pps sedlex.ppx ppx_deriving.show)))

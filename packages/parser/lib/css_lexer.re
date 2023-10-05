@@ -388,7 +388,7 @@ let non_printable_code_point = [%sedlex.regexp?
 
 /* This module is a copy/paste of Reason_css_lexer in favor of moving everything into css_lexer */
 module Tokenizer = {
-  open Reason_css_lexer;
+  open Css_spec_parser.Tokens;
   let lexeme = Sedlexing.utf8;
 
   let (let.ok) = Result.bind;
@@ -533,8 +533,10 @@ module Tokenizer = {
       switch (string) {
       | "url" => read_url(string)
       | _ => Ok(consume_function(string))
+      // TODO: from [Lexer.re]| _ => Ok(FUNCTION(string))
       }
     | _ =>
+     // TODO: from [Lexer.re]| | _ => Ok(IDENT(string))
       is_tag(string) ? Ok(Parser.TAG(string)) : Ok(Parser.IDENT(string))
     };
   };
@@ -544,7 +546,7 @@ let handle_tokenizer_error = (buf: Sedlexing.t) =>
   fun
   | Ok(value) => value
   | Error((_, msg)) => {
-      let error: string = Reason_css_lexer.show_error(msg);
+      let error: string = Css_spec_parser.Tokens.show_error(msg);
       let position = buf.pos;
       raise @@ LexingError((position, error));
     };
@@ -647,6 +649,11 @@ let get_next_tokens_with_location = buf => {
 
   (token, position_end, position_end_after);
 };
+
+/* 
+  TODO:  I think the code below could live in a separated file, not the in the lexer.
+  Maybe in [css_spec_parser.re].
+*/
 
 type parser('token, 'ast) = MenhirLib.Convert.traditional('token, 'ast);
 

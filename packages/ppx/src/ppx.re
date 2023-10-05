@@ -736,6 +736,7 @@ let _ =
             | Ok(declarations) =>
               let declarationListValues =
                 Css_to_emotion.render_declaration(declarations);
+              // TODO: We can do better by not using List.nth (maybe !! it's okay in reason)
               List.nth(declarationListValues, 0);
             | Error((loc, msg)) => Generate_lib.error(~loc, msg)
             };

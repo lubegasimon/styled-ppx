@@ -1,13 +1,18 @@
-open Rule.Pattern;
-open Reason_css_lexer;
+
+// open Reason_css_lexer;
+// open Css_spec_parser;
+
+open Css_spec_parser.Tokens;
 open Standard;
+open Rule.Pattern;
 
 module StringMap = Map.Make(String);
 
 let (let.ok) = Result.bind;
 
 let apply_parser = (parser, tokens_with_loc) => {
-  open Reason_css_lexer;
+  // open Reason_css_lexer;
+  open Css_spec_parser
 
   let tokens =
     tokens_with_loc
@@ -41,7 +46,7 @@ let apply_parser = (parser, tokens_with_loc) => {
 
 let parse = (rule_parser: Rule.rule('a), str) => {
   let.ok tokens_with_loc =
-    Reason_css_lexer.from_string(str) |> Result.map_error(_ => "frozen");
+    Css_spec_parser.from_string(str) |> Result.map_error(_ => "frozen");
 
   apply_parser(rule_parser, tokens_with_loc);
 };

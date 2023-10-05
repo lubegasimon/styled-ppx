@@ -1,4 +1,5 @@
-open Reason_css_lexer;
+// open Reason_css_lexer;
+open Css_spec_parser.Tokens
 open Combinator;
 open Rule.Let;
 open Rule.Pattern;
@@ -242,7 +243,7 @@ let line_names = {
   open Rule;
   open Rule.Let;
 
-  let.bind_match left = Pattern.expect(LEFT_SQUARE);
+  let.bind_match left = Pattern.expect(LEFT_BRACKET);
   let.bind_match path =
     Modifier.zero_or_more(
       {
@@ -250,7 +251,7 @@ let line_names = {
         Match.return(ident);
       },
     );
-  let.bind_match right = Pattern.expect(RIGHT_SQUARE);
+  let.bind_match right = Pattern.expect(RIGHT_BRACKET);
 
   return_match((left, path, right));
 };

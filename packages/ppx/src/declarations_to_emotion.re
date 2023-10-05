@@ -1749,7 +1749,7 @@ let outline_width =
   );
 
 let vertical_align =
-  apply(
+  apply(  
     Parser.property_vertical_align,
     (~loc) => [%expr CssJs.verticalAlign],
     (~loc, value) => {
@@ -3801,6 +3801,7 @@ let parse_declarations = (~loc: Location.t, property, value) => {
   | Ok(value) => Ok(value)
   | Error(_) =>
     switch (render_to_expr(~loc, property, value)) {
+    // TODO: Review, this is wierd because in Error case you can not have `Ok` value.
     | Ok(value) => Ok(value)
     | Error(_)
     | exception Unsupported_feature =>

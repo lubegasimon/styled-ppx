@@ -1,5 +1,7 @@
-open Reason_css_lexer;
+// open Reason_css_lexer;
 open Alcotest;
+open Css_spec_parser.Tokens;
+open Css_spec_parser;
 
 let parse = input => {
   let values =
@@ -58,9 +60,9 @@ let tests =
     ({|<|}, [DELIM("<")], 1),
     ({|@mayushii|}, [AT_KEYWORD("mayushii")], 9),
     ({|@|}, [DELIM("@")], 1),
-    ({|[|}, [LEFT_SQUARE], 1),
+    ({|[|}, [LEFT_BRACKET], 1),
     ("\\@desu", [IDENT("@desu")], 6),
-    ({|]|}, [RIGHT_SQUARE], 1),
+    ({|]|}, [RIGHT_BRACKET], 1),
     ({|12345678.9|}, [NUMBER(12345678.9)], 10),
     ({|bar|}, [IDENT("bar")], 3),
     ({||}, [EOF], 0),

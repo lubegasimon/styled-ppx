@@ -2,17 +2,25 @@
 [@@@warning "-21" (* [nonreturning-statement] *)]
 
 type rule =
-  | D of string * string
-  | S of string * rule array
+  | D of string * string (* I think [D] is for Declaration *)
+  | S of string * rule array (* I think [S] is for style rule *)
   | PseudoClass of string * rule array
   | PseudoClassParam of string * string * rule array
 
 let rec ruleToDict =
- fun [@bs] dict rule ->
+ fun [@bs] dict rule (* TODO: What is [@bs]? *)->
   (match rule with
-  | D (name, value) when name = {js|content|js} ->
+  | D (name, value) when name = {js|content|js}
+  (*TODO: I don't understand the syntax {js||js}
+     Ans: https://melange.re/v2.0.0/communicate-with-javascript/#data-types-and-runtime-representation*)
+   (*FOR EXAMPLE?? *) ->
     dict
-    |. Js.Dict.set name
+    |. (* TODO: What is this operator? *)
+    (* JS.Dict -> Provide utilities for JS dictionary object
+       https://melange.re/v2.0.0/api/re/melange/Js/#module-Dict *)
+    Js.Dict.set name
+    (* Js.Json -> provides utility functions for Json.
+       Js.Json.string -> makes a json string of string s. *)
          (Js.Json.string (if value = {js||js} then {js|""|js} else value))
   | D (name, value) -> dict |. Js.Dict.set name (Js.Json.string value)
   | S (name, ruleset) -> dict |. Js.Dict.set name (toJson ruleset)

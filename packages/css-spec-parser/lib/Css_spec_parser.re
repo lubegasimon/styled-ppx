@@ -1,4 +1,8 @@
 include Ast;
+module Tokens = Tokens
+// module Lexer = Lexer
+
+module Location = Ppxlib.Location;
 
 let provider = (buf, ()) => {
   let token = Lexer.tokenizer(buf);
@@ -30,6 +34,15 @@ let _multiplier_of_string = string =>
 
 let value_of_lex =
   MenhirLib.Convert.Simplified.traditional2revised(Parser.value_of_lex);
+
+// let stylesheet =
+//   MenhirLib.Convert.Simplified.traditional2revised(Parser.stylesheet);
+//   let keyframes =
+//   MenhirLib.Convert.Simplified.traditional2revised(Parser.keyframes);
+// let declaration =
+//   MenhirLib.Convert.Simplified.traditional2revised(Parser.declaration);
+//   let declaration_list =
+//   MenhirLib.Convert.Simplified.traditional2revised(Parser.declaration_list);
 
 let rec string_of_value = value => {
   let child_needs_brackets = (parent, child) => {
@@ -99,3 +112,37 @@ let value_of_string = string =>
   try(Sedlexing.Utf8.from_string(string) |> provider |> value_of_lex) {
   | _ => raise(ParseError(string))
   };
+
+type token_with_location = {
+  txt: result(Tokens.token, (Tokens.token, Tokens.error)),
+  loc: Location.t,
+};
+
+// TODO: that's definitly ugly
+/* TODO: Use lex_buffer from parser to keep track of the file */
+let from_string = string => {
+  let buf = Sedlexing.Utf8.from_string(string);
+  let rec read = acc => {
+    let (loc_start, _) = Sedlexing.lexing_positions(buf);
+    let value = Lexer.consume(buf);
+    let (_, loc_end) = Sedlexing.lexing_positions(buf);
+
+    let token_with_loc: token_with_location = {
+      txt: value,
+      loc: {
+        loc_start,
+        loc_end,
+        loc_ghost: false,
+      },
+    };
+
+    let acc = [token_with_loc, ...acc];
+    switch (value) {
+    | Ok(EOF) => Ok(acc)
+    | _ when loc_start.pos_cnum == loc_end.pos_cnum => Error(`Frozen)
+    | _ => read(acc)
+    };
+  };
+
+  read([]);
+};

@@ -1,7 +1,8 @@
 open Alcotest;
 open Reason_css_parser;
-open Reason_css_lexer;
+// open Reason_css_lexer;
 open Rule;
+open Css_spec_parser.Tokens;
 
 open! Data;
 let data_monad_tests: list(Alcotest.test_case(unit)) = [

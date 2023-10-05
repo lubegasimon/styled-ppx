@@ -1,4 +1,5 @@
-open Reason_css_lexer;
+// open Reason_css_lexer;
+open Css_spec_parser.Tokens
 
 type error = list(string);
 type data('a) = result('a, error);

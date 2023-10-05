@@ -3,6 +3,8 @@ module Make = (Builder: Ppxlib.Ast_builder.S) => {
   open Builder;
   open Css_spec_parser;
 
+  module Tokens = Css_spec_parser.Tokens
+
   let txt = txt => {Location.loc: Builder.loc, txt};
 
   let kebab_case_to_snake_case = name =>
@@ -395,10 +397,10 @@ module Make = (Builder: Ppxlib.Ast_builder.S) => {
         [],
       );
     let type_anotation = [%type:
-      list(Reason_css_lexer.token) =>
+      list(Tokens.token) =>
       (
         Reason_css_parser__Rule.data([%t core_type]),
-        list(Reason_css_lexer.token),
+        list(Tokens.token),
       )
     ];
     [%expr ([%e expression]: [%t type_anotation])];

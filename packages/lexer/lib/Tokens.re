@@ -14,18 +14,12 @@ type token =
     | IDENT(string) // ident
     | BAD_IDENT // TODO: this is needed?
     | AT_KEYWORD(string) // @<keyword>
-    | AT_MEDIA (string) // @media
-    | AT_KEYFRAMES (string) // @keyframes
-    | AT_RULE (string)  // @<rule>
-    | AT_RULE_STATEMENT (string) 
     | HASH(string, [ | `ID | `UNRESTRICTED]) // hash
     | BAD_URL // bad-url
     | NUMBER(float) // number
     | DELIM(string) // delim
     | DIMENSION(float, string) // dimension
     // combinators
-    | COMBINATOR (string)
-    | AMPERSAND
     | DOUBLE_AMPERSAND // &&
     | DOUBLE_BAR // ||
     | BAR // |
@@ -33,29 +27,18 @@ type token =
     | RIGHT_BRACKET // ]
     | LEFT_CURLY // {
     | RIGHT_CURLY // }
-    | DOT // .
     | COMMA // ,
     | COLON // :
     | SEMICOLON // ;
-    | DOUBLECOLON // ::
     // modifiers
-    | OPERATOR (string) // FIXME: Not sure how this differs with the e.g plus
     | ASTERISK // *
     | PLUS // +
     | QUESTION_MARK // ?
     | RANGE(([ | `Comma | `Space], int, option(int))) // {1} {1,} {1, 2} #{1}
     | EXCLAMATION_POINT // !
-    | IMPORTANT // FIXME: Is this not [EXCLAMATION_POINT]?
-    | PERCENTAGE_FROM_CSS_PARSER
     | PERCENTAGE(float) // %
-    | UNICODE_RANGE (string)
-    | HASH_FROM_CSS_LEXER (string)
-    | NUMBER_FROM_CSS_LEXER (string)
-    | DIMENSION_FROM_CSS_LEXER (string, string)
-    | FLOAT_DIMENSION (string, string)
     // for functions
     | FUNCTION(string) // function
-    // FIXME: Should this really be plural
     | LEFT_PARENS // (
     | RIGHT_PARENS // )
     // for required chars
@@ -65,10 +48,9 @@ type token =
     | CDC // <CDC-token>
     // End
     | WHITESPACE // whitespace
-    | TAG (string)
-    | NTH_FUNCTION (string)
-    | INTERPOLATION (list(string))
     | EOF;
+  
+  
 
 let string_of_char = c => String.make(1, c);
 
@@ -108,8 +90,6 @@ let humanize =
   | PLUS => "+"
   | QUESTION_MARK => "?"
   | EXCLAMATION_POINT => "!"
-  | TAG(s)=> "TAG('" ++ s ++ "')"
-  | NTH_FUNCTION(fn) => "FUNCTION(" ++ fn ++ ")"
   // FIXME:
     // LITERAL _ |DATA _| PROPERTY _|RANGE _|CHAR _
   | _ => assert false

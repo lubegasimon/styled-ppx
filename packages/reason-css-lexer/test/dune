@@ -2,6 +2,7 @@
  (name Tokenizer_test)
  (libraries
   styled-ppx.reason-css-lexer
+  styled-ppx.css-spec-parser
   alcotest
   ppxlib
   ppxlib.astlib
