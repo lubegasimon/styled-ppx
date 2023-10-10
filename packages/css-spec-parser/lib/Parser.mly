@@ -60,15 +60,15 @@ open Ast
 %token <float> NUMBER
 %token <float> PERCENTAGE
 
-%token <float, string> DIMENSION
+%token <float * string> DIMENSION
 %token <string * string> FLOAT_DIMENSION
 %token <string * string> DIMENSION_FROM_CSS_LEXER // FIXME: UGLY
 %token <string list> INTERPOLATION
-%token <string, [`ID | `UNRESTRICTED]> HASH
+%token <string * [`ID | `UNRESTRICTED]> HASH
 %token <[ `Comma | `Space ] * int * int option> RANGE
 
-%start <Ast.value option> value_of_lex
-%start <Ast.multiplier option> multiplier_of_lex
+%start <value option> value_of_lex
+%start <multiplier option> multiplier_of_lex
 %start <stylesheet> stylesheet
 %start <rule_list> declaration_list
 %start <declaration> declaration
@@ -152,7 +152,7 @@ stylesheet: s = stylesheet_without_eof; EOF { s }
   of the stylesheet but without considering the end of file
 
   [EOF { s }] -> indicates what should happen when the parser reaches EOF, it returns the
-  value of [s] which represents the parsed [stylesheet]. 
+  value of [s] which represents the parsed [stylesheet].
 */
 
 stylesheet_without_eof: rs = loc(list(rule)) { rs }
