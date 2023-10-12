@@ -2,114 +2,18 @@
   * Reference:
   * https://www.w3.org/TR/css-syntax-3/ */
 module Sedlexing = Lex_buffer;
-// open Sedlexing;
-// module Parser = Css_parser;
 module Types = Css_types;
-module Tokens = Tokens;
-open Tokens;
 
 /** Signals a lexing error at the provided source location. */
 exception LexingError((Lexing.position, string));
 
-/** Signals a parsing error at the provided token and its start and end
- * locations. */
-// exception ParseError((Parser.token, Lexing.position, Lexing.position));
 
 let unreachable = () =>
   failwith(
     "This match case is unreachable. sedlex needs a last case as wildcard _. If this error appears, means that there's a bug in the lexer.",
   );
 
-/* TODO: Create a token file to export the tokens so that it doesn't appear like
-   we are calling the parser via `Parser....` */
-let token_to_string =
-  fun
-  | EOF => ""
-  | LEFT_BRACE => "{"
-  | RIGHT_BRACE => "}"
-  | LEFT_PAREN => "("
-  | RIGHT_PAREN => ")"
-  | LEFT_BRACKET => "["
-  | RIGHT_BRACKET => "]"
-  | COLON => ":"
-  | DOUBLE_COLON => "::"
-  | SEMI_COLON => ";"
-  | PERCENT => "%"
-  | AMPERSAND => "&"
-  | IMPORTANT => "!important"
-  | IDENT(s) => s
-  | TAG(s) => s
-  | STRING(s) => "'" ++ s ++ "'"
-  | OPERATOR(s) => s
-  | COMBINATOR(s)
-  | DELIM(s) => s
-  | AT_MEDIA(s)
-  | AT_KEYFRAMES(s)
-  | AT_RULE_STATEMENT(s)
-  | AT_RULE(s) => "@" ++ s
-  | HASH_(s) => "#" ++ s
-  | NUMBER_(s) => s
-  | UNICODE_RANGE(s) => s
-  | FLOAT_DIMENSION((n, s)) => n ++ s
-  | DIMENSION_((n, d)) => n ++ d
-  | INTERPOLATION(v) => String.concat(".", v)
-  | WS => " "
-  | DOT => "."
-  | COMMA => ","
-  | ASTERISK => "*"
-  | FUNCTION(fn) => fn ++ "("
-  | NTH_FUNCTION(fn) => fn ++ "("
-  | URL(url) => url ++ "("
-  | BAD_URL => "bad url"
-  | BAD_IDENT => "bad indent"
-  /*
-   FIXME:
-   (CDO|CDC|AT_KEYWORD _|HASH (_, _)|BAD_STRING _|NUMBER _|
-   PERCENTAGE _|DIMENSION (_, _))
-   */
-  | _ => assert(false);
-
-let token_to_debug =
-  fun
-  | EOF => "EOF"
-  | LEFT_BRACE => "LEFT_BRACE"
-  | RIGHT_BRACE => "RIGHT_BRACE"
-  | LEFT_PAREN => "LEFT_PAREN"
-  | RIGHT_PAREN => "RIGHT_PAREN"
-  | LEFT_BRACKET => "LEFT_BRACKET"
-  | RIGHT_BRACKET => "RIGHT_BRACKET"
-  | COLON => "COLON"
-  | DOUBLE_COLON => "DOUBLE_COLON"
-  | SEMI_COLON => "SEMI_COLON"
-  | PERCENT => "PERCENTAGE"
-  | AMPERSAND => "AMPERSAND"
-  | IMPORTANT => "IMPORTANT"
-  | IDENT(s) => "IDENT('" ++ s ++ "')"
-  | TAG(s) => "TAG('" ++ s ++ "')"
-  | STRING(s) => "STRING('" ++ s ++ "')"
-  | OPERATOR(s) => "OPERATOR('" ++ s ++ "')"
-  | DELIM(s) => "DELIM('" ++ s ++ "')"
-  | AT_RULE(s) => "AT_RULE('" ++ s ++ "')"
-  | AT_RULE_STATEMENT(s) => "AT_RULE_STATEMENT('" ++ s ++ "')"
-  | AT_MEDIA(s) => "AT_MEDIA('" ++ s ++ "')"
-  | AT_KEYFRAMES(s) => "AT_KEYFRAMES('" ++ s ++ "')"
-  | HASH_(s) => "HASH('" ++ s ++ "')"
-  | NUMBER_(s) => "NUMBER('" ++ s ++ "')"
-  | UNICODE_RANGE(s) => "UNICODE_RANGE('" ++ s ++ "')"
-  | FLOAT_DIMENSION((n, s)) => "FLOAT_DIMENSION('" ++ n ++ ", " ++ s ++ "')"
-  | DIMENSION_((n, d)) => "DIMENSION('" ++ n ++ ", " ++ d ++ "')"
-  | INTERPOLATION(v) => "VARIABLE('" ++ String.concat(".", v) ++ "')"
-  | COMBINATOR(s) => "COMBINATOR(" ++ s ++ ")"
-  | DOT => "DOT"
-  | COMMA => "COMMA"
-  | WS => "WS"
-  | ASTERISK => "ASTERISK"
-  | FUNCTION(fn) => "FUNCTION(" ++ fn ++ ")"
-  | NTH_FUNCTION(fn) => "FUNCTION(" ++ fn ++ ")"
-  | URL(u) => "URL(" ++ u ++ ")"
-  | BAD_URL => "BAD_URL"
-  // FIXME:
-  | _ => assert(false);
+let ( ~: ) = f => f ()
 
 /* Regexes */
 let newline = [%sedlex.regexp? '\n' | "\r\n" | '\r' | '\012'];
@@ -410,24 +314,14 @@ let starts_a_number = [%sedlex.regexp?
   ("+" | "-", digit) | ("+" | "-", ".", digit) | ('.', digit)
 ];
 
-// FIXME: Consider moving this back to Tokenizer
-let (let.ok) = Result.bind;
-
-/* This module is a copy/paste of Reason_css_lexer in favor of moving everything into css_lexer */
 module Tokenizer = {
-  // open Reason_css_lexer;
+
   let lexeme = Sedlexing.utf8;
 
-  /* I don't think this function in any way calls the Parser, not a lexer.
-     What it does is defines a lexing function that consumes white zero or more
-     white space and produces a corresponding token `WS`. Parser, could be replaced
-     with Token so that it doesn't turn out confusing that the function is calling
-     a Parser. By definition, the process is like;
-     parser |> lexer tokens */
   let consume_whitespace = buf =>
     switch%sedlex (buf) {
-    | Star(whitespace) => WS
-    | _ => WS
+    | Star(whitespace) => Tokens.WS
+    | _ => Tokens.WS
     };
 
   let string_of_uchar = char => {
@@ -457,10 +351,10 @@ module Tokenizer = {
       let char = uchar_of_int(char_code);
       let _ = consume_whitespace(buf);
       char_code == 0 || is_surrogate(char_code)
-        ? Error((Uchar.rep, Invalid_code_point)) : Ok(char);
-    | eof => Error((Uchar.rep, Eof))
-    | any => Ok(lexeme(buf))
-    | _ => unreachable()
+        ? Error((Uchar.rep, Tokens.Invalid_code_point)) : Ok(char);
+    | eof => Error((Uchar.rep, Tokens.Eof))
+    | any => Ok(lexeme(buf, ))
+    | _ => ~:unreachable
     };
   };
 
@@ -473,7 +367,7 @@ module Tokenizer = {
       let _ = consume_escaped(buf);
       consume_remnants_bad_url(buf);
     | any => consume_remnants_bad_url(buf)
-    | _ => unreachable()
+    | _ => ~:unreachable
     };
 
   // https://drafts.csswg.org/css-syntax-3/#consume-url-token
@@ -483,16 +377,16 @@ module Tokenizer = {
       let when_whitespace = () => {
         let _ = consume_whitespace(buf);
         switch%sedlex (buf) {
-        | ')' => Ok(URL(acc))
-        | eof => Error((URL(acc), Eof))
+        | ')' => Ok(Tokens.URL(acc))
+        | eof => Error((Tokens.URL(acc),Tokens.Eof))
         | _ =>
           consume_remnants_bad_url(buf);
           Ok(BAD_URL);
         };
       };
       switch%sedlex (buf) {
-      | ')' => Ok(URL(acc))
-      | eof => Error((URL(acc), Eof))
+      | ')' => Ok(Tokens.URL(acc))
+      | eof => Error((Tokens.URL(acc), Tokens.Eof))
       | whitespace => when_whitespace()
       | '"'
       | '\''
@@ -507,11 +401,13 @@ module Tokenizer = {
         | Error((_, error)) => Error((BAD_URL, error))
         }
       | any => read(acc ++ lexeme(buf))
-      | _ => unreachable()
+      | _ => ~:unreachable
       };
     };
     read(lexeme(buf));
   };
+
+   let (let.ok) = Result.bind;
 
   // https://drafts.csswg.org/css-syntax-3/#consume-name
   let consume_identifier = buf => {
@@ -529,7 +425,7 @@ module Tokenizer = {
 
   let handle_consume_identifier =
     fun
-    | Error((_, error)) => Error((BAD_IDENT, error))
+    | Error((_, error)) => Error((Tokens.BAD_IDENT, error))
     | Ok(string) => Ok(string);
 
   let consume_function = string => {
@@ -537,8 +433,8 @@ module Tokenizer = {
     | "nth-last-child"
     | "nth-child"
     | "nth-of-type"
-    | "nth-last-of-type" => NTH_FUNCTION(string)
-    | _ => FUNCTION(string)
+    | "nth-last-of-type" => Tokens.NTH_FUNCTION(string)
+    | _ => Tokens.FUNCTION(string)
     };
   };
 
@@ -570,8 +466,6 @@ module Tokenizer = {
   };
 
   // https://drafts.csswg.org/css-syntax-3/#starts-with-a-valid-escape
-  /* FIXME: Move to notes: A code point is a Unicode code point and is represented as "U+" followed by
-     four-to-six ASCII upper hex digits, in the range U+0000 to U+10FFFF, inclusive */
   let check_if_two_code_points_are_a_valid_escape = buf =>
     switch%sedlex (buf) {
     | ("\\", '\n') => false
@@ -614,22 +508,22 @@ module Tokenizer = {
         let code_point = lexeme(buf);
         code_point == ending_code_point
           ? Ok(acc) : read(acc ++ lexeme(buf));
-      | eof => Error((acc, Eof))
-      | newline => Error((acc, New_line))
+      | eof => Error((acc, Tokens.Eof))
+      | newline => Error((acc, Tokens.New_line))
       | escape =>
         switch (consume_escaped(buf)) {
         | Ok(char) => read(acc ++ char)
         | Error((_, error)) => Error((acc, error))
         }
       | any => read(acc ++ lexeme(buf))
-      | _ => unreachable()
+      | _ => ~:unreachable
       };
     };
     // FIXME: Review
     // read (lexeme(buf))
     switch (read("")) {
-    | Ok(string) => Ok(STRING(string))
-    | Error((string, error)) => Error((BAD_STRING(string), error))
+    | Ok(string) => Ok(Tokens.STRING(string))
+    | Error((string, error)) => Error((Tokens.BAD_STRING(string), error))
     };
   };
 
@@ -667,7 +561,7 @@ module Tokenizer = {
     if (check_if_three_codepoints_would_start_an_identifier(buf)) {
       // TODO: should it be BAD_IDENT?
       let.ok string = consume_identifier(buf) |> handle_consume_identifier;
-      Ok(DIMENSION(number, string));
+      Ok(Tokens.DIMENSION(number, string));
     } else {
       switch%sedlex (buf) {
       | '%' => Ok(PERCENTAGE(number))
@@ -681,7 +575,7 @@ module Tokenizer = {
     let rec read_until_closes = () =>
       switch%sedlex (buf) {
       | "*/" => Ok()
-      | eof => Error(((), Eof))
+      | eof => Error(((), Tokens.Eof))
       | _ => read_until_closes()
       };
     switch%sedlex (buf) {
@@ -701,11 +595,11 @@ module Tokenizer = {
           Sedlexing.rollback(buf);
           let.ok string =
             consume_identifier(buf) |> handle_consume_identifier;
-          Ok(HASH(string, `ID));
+          Ok(Tokens.HASH(string, `ID));
         | _ =>
           let.ok string =
             consume_identifier(buf) |> handle_consume_identifier;
-          Ok(HASH(string, `UNRESTRICTED));
+          Ok(Tokens.HASH(string, `UNRESTRICTED));
         };
       | _ => Ok(DELIM("#"))
       };
@@ -758,7 +652,7 @@ module Tokenizer = {
       if (check_if_three_codepoints_would_start_an_identifier(buf)) {
         // TODO: grr BAD_IDENT
         let.ok string = consume_identifier(buf) |> handle_consume_identifier;
-        Ok(AT_KEYWORD(string));
+        Ok(Tokens.AT_KEYWORD(string));
       } else {
         Ok(DELIM("@"));
       }
@@ -781,10 +675,7 @@ module Tokenizer = {
       consume_ident_like(buf);
     | eof => Ok(EOF)
     | any => Ok(DELIM(lexeme(buf)))
-    | _ =>
-      failwith(
-        "This match case is unreachable. sedlex needs a last case as wildcard _. If this error appears, means that there's a bug in the lexer.",
-      )
+    | _ => ~:unreachable
     };
   };
 };
@@ -793,7 +684,7 @@ let handle_tokenizer_error = (buf: Sedlexing.t) =>
   fun
   | Ok(value) => value
   | Error((_, msg)) => {
-      let error: string = show_error(msg);
+      let error: string = Tokens.show_error(msg);
       let position = buf.pos;
       raise @@ LexingError((position, error));
     };
@@ -801,10 +692,10 @@ let handle_tokenizer_error = (buf: Sedlexing.t) =>
 let skip_whitespace = ref(false);
 
 let rec get_next_token = buf => {
-  open Sedlexing; // open Parser;
+  open Sedlexing;
 
   switch%sedlex (buf) {
-  | eof => EOF
+  | eof => Tokens.EOF
   | "/*" => discard_comments(buf)
   | '.' => DOT
   | ';' => SEMI_COLON

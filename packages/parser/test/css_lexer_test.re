@@ -1,13 +1,11 @@
 open Alcotest;
 
-module Lexer = Css_lexer;
-module Parser = Css_lexer.Parser;
 
 let parse = input => {
   let buffer = Sedlexing.Utf8.from_string(input) |> Lex_buffer.of_sedlex;
   let rec from_string = acc => {
-    switch (Lexer.get_next_token(buffer)) {
-    | Parser.EOF => []
+    switch (Css_lexer.get_next_token(buffer)) {
+    | Tokens.EOF => []
     | token => [token, ...from_string(acc)]
     };
   };
@@ -19,8 +17,8 @@ let parse = input => {
 
 let render_token =
   fun
-  | Parser.EOF => ""
-  | t => Lexer.token_to_debug(t);
+  | Tokens.EOF => ""
+  | t => Tokens.token_to_debug(t);
 
 let list_parse_tokens_to_string = tokens =>
   tokens |> List.map(render_token) |> String.concat(" ") |> String.trim;
@@ -29,25 +27,25 @@ let list_tokens_to_string = tokens =>
   tokens |> List.map(render_token) |> String.concat(" ") |> String.trim;
 
 let success_tests_data =
-  Parser.[
+  Tokens.[
     (" \n\t ", [WS]),
     ({|"something"|}, [STRING("something")]),
     ({|'tuturu'|}, [STRING("tuturu")]),
     /* TODO: Differentiate HASH from ID */
-    ({|#2|}, [HASH("2")]),
-    ({|#abc|}, [HASH("abc")]),
+    ({|#2|}, [HASH_("2")]),
+    ({|#abc|}, [HASH_("abc")]),
     ({|#|}, [DELIM("#")]),
     ({|(|}, [LEFT_PAREN]),
     ({|)|}, [RIGHT_PAREN]),
     /* TODO: Treat +1 to NUMBER and not COMBINATOR + NUMBER */
     /* ({|+12.3|}, [NUMBER("12.3")]), */
-    ({|+ 12.3|}, [COMBINATOR("+"), WS, NUMBER("12.3")]),
+    ({|+ 12.3|}, [COMBINATOR("+"), WS, NUMBER_("12.3")]),
     /* TODO: COMBINATOR or DELIM(+)? */
     ({|+|}, [COMBINATOR("+")]),
     ({|,|}, [COMMA]),
-    ({|-45.6|}, [NUMBER("-45.6")]),
-    ({|45%|}, [NUMBER("45"), PERCENTAGE]),
-    ({|2n|}, [DIMENSION(("2", "n"))]),
+    ({|-45.6|}, [NUMBER_("-45.6")]),
+    ({|45%|}, [NUMBER_("45"), PERCENT]),
+    ({|2n|}, [DIMENSION_(("2", "n"))]),
     /* TODO: Store Float_dimension as float/int */
     /* TODO: Store dimension as a variant */
     ({|45.6px|}, [FLOAT_DIMENSION(("45.6", "px"))]),
@@ -68,12 +66,12 @@ let success_tests_data =
     ({|@|}, [DELIM("@")]),
     ({|[|}, [LEFT_BRACKET]),
     ({|]|}, [RIGHT_BRACKET]),
-    ({|0.7|}, [NUMBER("0.7")]),
-    ({|12345678.9|}, [NUMBER("12345678.9")]),
+    ({|0.7|}, [NUMBER_("0.7")]),
+    ({|12345678.9|}, [NUMBER_("12345678.9")]),
     ({|bar|}, [IDENT("bar")]),
     ({||}, [EOF]),
     ({|!|}, [DELIM("!")]),
-    ("1 / 1", [NUMBER("1"), WS, DELIM("/"), WS, NUMBER("1")]),
+    ("1 / 1", [NUMBER_("1"), WS, DELIM("/"), WS, NUMBER_("1")]),
     (
       {|calc(10px + 10px)|},
       [
@@ -100,7 +98,7 @@ let success_tests_data =
     /* TODO: Percentage should have payload? */
     (
       {|calc(10%)|},
-      [FUNCTION("calc"), NUMBER("10"), PERCENTAGE, RIGHT_PAREN],
+      [FUNCTION("calc"), NUMBER_("10"), PERCENT, RIGHT_PAREN],
     ),
     (
       {|background-image:url('img_tree.gif' )|},
@@ -114,8 +112,8 @@ let success_tests_data =
       ],
     ),
     /* TODO: Transform this as [DELIM("$"), LEFT_PAREN, IDENT("Module"), DELIM("."), IDENT("variable"), RIGHT_PAREN]) */
-    ({|$(Module.variable)|}, [VARIABLE(["Module", "variable"])]),
-    ({|$(Module.variable')|}, [VARIABLE(["Module", "variable'"])]),
+    ({|$(Module.variable)|}, [INTERPOLATION(["Module", "variable"])]),
+    ({|$(Module.variable')|}, [INTERPOLATION(["Module", "variable'"])]),
     ({|-moz|}, [IDENT("-moz")]),
     ({|--color-main|}, [IDENT("--color-main")]),
   ]

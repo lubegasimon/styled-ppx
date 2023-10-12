@@ -49,6 +49,17 @@ type token =
 
 let string_of_char = c => String.make(1, c);
 
+type error =
+  | Invalid_code_point
+  | Eof
+  | New_line;
+
+let show_error =
+  fun
+  | Invalid_code_point => "Invalid code point"
+  | Eof => "Unexpected end"
+  | New_line => "New line";
+
 let humanize =
   fun
   | EOF => "the end"
@@ -99,13 +110,91 @@ let humanize =
   | ASTERISK => "ASTERISK"
   | NTH_FUNCTION(fn) => "FUNCTION(" ++ fn ++ ")";
 
-type error =
-  | Invalid_code_point
-  | Eof
-  | New_line;
-
-let show_error =
+let token_to_string =
   fun
-  | Invalid_code_point => "Invalid code point"
-  | Eof => "Unexpected end"
-  | New_line => "New line";
+  | EOF => ""
+  | LEFT_BRACE => "{"
+  | RIGHT_BRACE => "}"
+  | LEFT_PAREN => "("
+  | RIGHT_PAREN => ")"
+  | LEFT_BRACKET => "["
+  | RIGHT_BRACKET => "]"
+  | COLON => ":"
+  | DOUBLE_COLON => "::"
+  | SEMI_COLON => ";"
+  | PERCENT => "%"
+  | AMPERSAND => "&"
+  | IMPORTANT => "!important"
+  | IDENT(s) => s
+  | TAG(s) => s
+  | STRING(s) => "'" ++ s ++ "'"
+  | OPERATOR(s) => s
+  | COMBINATOR(s)
+  | DELIM(s) => s
+  | AT_MEDIA(s)
+  | AT_KEYFRAMES(s)
+  | AT_RULE_STATEMENT(s)
+  | AT_RULE(s) => "@" ++ s
+  | HASH_(s) => "#" ++ s
+  | NUMBER_(s) => s
+  | UNICODE_RANGE(s) => s
+  | FLOAT_DIMENSION((n, s)) => n ++ s
+  | DIMENSION_((n, d)) => n ++ d
+  | INTERPOLATION(v) => String.concat(".", v)
+  | WS => " "
+  | DOT => "."
+  | COMMA => ","
+  | ASTERISK => "*"
+  | FUNCTION(fn) => fn ++ "("
+  | NTH_FUNCTION(fn) => fn ++ "("
+  | URL(url) => url ++ "("
+  | BAD_URL => "bad url"
+  | BAD_IDENT => "bad indent"
+  /*
+   FIXME:
+   (CDO|CDC|AT_KEYWORD _|HASH (_, _)|BAD_STRING _|NUMBER _|
+   PERCENTAGE _|DIMENSION (_, _))
+   */
+  | _ => assert(false);
+
+let token_to_debug =
+  fun
+  | EOF => "EOF"
+  | LEFT_BRACE => "LEFT_BRACE"
+  | RIGHT_BRACE => "RIGHT_BRACE"
+  | LEFT_PAREN => "LEFT_PAREN"
+  | RIGHT_PAREN => "RIGHT_PAREN"
+  | LEFT_BRACKET => "LEFT_BRACKET"
+  | RIGHT_BRACKET => "RIGHT_BRACKET"
+  | COLON => "COLON"
+  | DOUBLE_COLON => "DOUBLE_COLON"
+  | SEMI_COLON => "SEMI_COLON"
+  | PERCENT => "PERCENTAGE"
+  | AMPERSAND => "AMPERSAND"
+  | IMPORTANT => "IMPORTANT"
+  | IDENT(s) => "IDENT('" ++ s ++ "')"
+  | TAG(s) => "TAG('" ++ s ++ "')"
+  | STRING(s) => "STRING('" ++ s ++ "')"
+  | OPERATOR(s) => "OPERATOR('" ++ s ++ "')"
+  | DELIM(s) => "DELIM('" ++ s ++ "')"
+  | AT_RULE(s) => "AT_RULE('" ++ s ++ "')"
+  | AT_RULE_STATEMENT(s) => "AT_RULE_STATEMENT('" ++ s ++ "')"
+  | AT_MEDIA(s) => "AT_MEDIA('" ++ s ++ "')"
+  | AT_KEYFRAMES(s) => "AT_KEYFRAMES('" ++ s ++ "')"
+  | HASH_(s) => "HASH('" ++ s ++ "')"
+  | NUMBER_(s) => "NUMBER('" ++ s ++ "')"
+  | UNICODE_RANGE(s) => "UNICODE_RANGE('" ++ s ++ "')"
+  | FLOAT_DIMENSION((n, s)) => "FLOAT_DIMENSION('" ++ n ++ ", " ++ s ++ "')"
+  | DIMENSION_((n, d)) => "DIMENSION('" ++ n ++ ", " ++ d ++ "')"
+  | INTERPOLATION(v) => "VARIABLE('" ++ String.concat(".", v) ++ "')"
+  | COMBINATOR(s) => "COMBINATOR(" ++ s ++ ")"
+  | DOT => "DOT"
+  | COMMA => "COMMA"
+  | WS => "WS"
+  | ASTERISK => "ASTERISK"
+  | FUNCTION(fn) => "FUNCTION(" ++ fn ++ ")"
+  | NTH_FUNCTION(fn) => "FUNCTION(" ++ fn ++ ")"
+  | URL(u) => "URL(" ++ u ++ ")"
+  | BAD_URL => "BAD_URL"
+  // FIXME:
+  | _ => assert(false);
