@@ -40,6 +40,8 @@ let check = (f, buf) => {
 };
 
 // https://drafts.csswg.org/css-syntax-3/#starts-with-a-valid-escape
+/* FIXME: Move to notes: A code point is a Unicode code point and is represented as "U+" followed by
+   four-to-six ASCII upper hex digits, in the range U+0000 to U+10FFFF, inclusive */
 let check_if_two_code_points_are_a_valid_escape = buf =>
   switch%sedlex (buf) {
   | ("\\", '\n') => false

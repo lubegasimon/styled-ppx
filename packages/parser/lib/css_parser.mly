@@ -15,11 +15,12 @@ open Css_types
 %token DOT
 %token DOUBLE_COLON
 %token SEMI_COLON
-%token PERCENTAGE
+%token PERCENT
 %token IMPORTANT
 %token AMPERSAND
 %token ASTERISK
 %token COMMA
+%token BAD_IDENT
 %token WS
 %token <string> IDENT
 %token <string> TAG
@@ -35,12 +36,12 @@ open Css_types
 %token <string> AT_KEYFRAMES
 %token <string> AT_RULE
 %token <string> AT_RULE_STATEMENT
-%token <string> HASH
-%token <string> NUMBER
+%token <string> HASH_
+%token <string> NUMBER_
 %token <string> UNICODE_RANGE
 %token <string * string> FLOAT_DIMENSION
-%token <string * string> DIMENSION
-%token <string list> VARIABLE
+%token <string * string> DIMENSION_
+%token <string list> INTERPOLATION
 
 %start <stylesheet> stylesheet
 %start <rule_list> declaration_list
@@ -99,7 +100,7 @@ prelude: xs = loption(nonempty_list(loc(value_in_prelude))) { xs }
 /* Combinator "," */
 media_query_prelude_item:
   | i = IDENT { Ident i }
-  | v = VARIABLE { Variable v }
+  | v = INTERPOLATION { Variable v } // FIXME: Change this to Interpolation
   | xs = paren_block(prelude) { Paren_block xs }
 
 media_query_prelude: q = nonempty_list(loc(skip_ws(media_query_prelude_item))) { q }
@@ -174,7 +175,7 @@ at_rule:
     }
   }
 
-percentage: n = NUMBER PERCENTAGE { n }
+percentage: n = NUMBER_ PERCENT { n }
 
 /* keyframe allows stylesheet by defintion, but we restrict the usage to: */
 keyframe_style_rule:
@@ -271,17 +272,17 @@ nth_payload:
   /* | complex = complex_selector_list; { NthSelector complex } */
   /* <An+B> */
   /* 2 */
-  | a = NUMBER { Nth (A (int_of_string a)) }
+  | a = NUMBER_ { Nth (A (int_of_string a)) }
   /* 2n */
-  | a = DIMENSION { Nth (AN (int_of_string (fst a))) }
+  | a = DIMENSION_ { Nth (AN (int_of_string (fst a))) }
   /* 2n-1 */
-  | a = DIMENSION WS? combinator = COMBINATOR b = NUMBER {
+  | a = DIMENSION_ WS? combinator = COMBINATOR b = NUMBER_ {
     let b = int_of_string b in
     Nth (ANB (((int_of_string (fst a)), combinator, b)))
   }
   /* This is a hackish solution where combinator isn't cached because the lexer
-  assignes the `-` to NUMBER. This could be solved by leftassoc */
-  | a = DIMENSION WS? b = NUMBER {
+  assignes the `-` to NUMBER_. This could be solved by leftassoc */
+  | a = DIMENSION_ WS? b = NUMBER_ {
     let b = Int.abs (int_of_string (b)) in
     Nth (ANB (((int_of_string (fst a)), "-", b)))
   }
@@ -299,7 +300,7 @@ nth_payload:
   /* n-1 */
   /* n */
   /* -n */
-  | n = IDENT WS? combinator = COMBINATOR b = NUMBER {
+  | n = IDENT WS? combinator = COMBINATOR b = NUMBER_ {
     let first_char = String.get n 0 in
     let a = if first_char = '-' then -1 else 1 in
     Nth (ANB ((a, combinator, int_of_string b)))
@@ -363,7 +364,7 @@ attribute_selector:
 ;
 
 /* <id-selector> = <hash-token> */
-id_selector: h = HASH { Id h }
+id_selector: h = HASH_ { Id h }
 
 /* <class-selector> = '.' <ident-token> */
 class_selector:
@@ -377,7 +378,7 @@ subclass_selector:
   | c = class_selector { c } /* .class */
   | a = attribute_selector { a } /* [attr] */
   | pcs = pseudo_class_selector { Pseudo_class pcs } /* :pseudo-class */
-  | DOT v = VARIABLE { ClassVariable v } /* .$(Variable) as subclass_selector */
+  | DOT v = INTERPOLATION { ClassVariable v } /* .$(Variable) as subclass_selector */
 
 selector:
   /* By definition a selector can be one of those kinds, since inside
@@ -394,7 +395,7 @@ selector:
 type_selector:
   | AMPERSAND; { Ampersand } /* & {} https://drafts.csswg.org/css-nesting/#nest-selector */
   | ASTERISK; { Universal } /* * {} */
-  | v = VARIABLE { Variable v } /* $(Module.value) {} */
+  | v = INTERPOLATION { Variable v } /* $(Module.value) {} */
   /* TODO: type_selector should work with IDENTs, but there's a bunch of grammar
     conflicts with IDENT on value and others, we replaced with TAG, a
     list of valid HTML tags that does the job done, but this should be fixed. */
@@ -502,13 +503,13 @@ value_in_prelude:
   | DOT { Delim "." }
   | COLON { Delim ":" }
   | DOUBLE_COLON { Delim "::" }
-  | h = HASH { Hash h }
+  | h = HASH_ { Hash h }
   | COMMA { Delim "," }
-  | n = NUMBER { Number n }
+  | n = NUMBER_ { Number n }
   | r = UNICODE_RANGE { Unicode_range r }
   | d = FLOAT_DIMENSION { Float_dimension d }
-  | d = DIMENSION { Dimension d }
-  | v = VARIABLE { Variable v } /* $(Lola.value) */
+  | d = DIMENSION_ { Dimension d }
+  | v = INTERPOLATION { Variable v } /* $(Lola.value) */
   | f = loc(FUNCTION) xs = loc(prelude) RIGHT_PAREN; { Function (f, xs) } /* calc() */
   | u = URL { Uri u } /* url() */
   | WS { Delim " " }
@@ -526,13 +527,13 @@ value:
   | DOT { Delim "." }
   | ASTERISK { Delim "*" }
   | COLON { Delim ":" }
-  | h = HASH { Hash h }
+  | h = HASH_ { Hash h }
   | DOUBLE_COLON { Delim "::" }
   | COMMA { Delim "," }
-  | n = NUMBER { Number n }
+  | n = NUMBER_ { Number n }
   | r = UNICODE_RANGE { Unicode_range r }
   | d = FLOAT_DIMENSION { Float_dimension d }
-  | d = DIMENSION { Dimension d }
-  | v = VARIABLE { Variable v } /* $(Lola.value) */
+  | d = DIMENSION_ { Dimension d }
+  | v = INTERPOLATION { Variable v } /* $(Lola.value) */
   | f = loc(FUNCTION) v = loc(values) RIGHT_PAREN; { Function (f, v) } /* calc() */
   | u = URL { Uri u } /* url() */
