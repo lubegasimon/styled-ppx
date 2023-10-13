@@ -7,13 +7,12 @@ module Types = Css_types;
 /** Signals a lexing error at the provided source location. */
 exception LexingError((Lexing.position, string));
 
-
 let unreachable = () =>
   failwith(
     "This match case is unreachable. sedlex needs a last case as wildcard _. If this error appears, means that there's a bug in the lexer.",
   );
 
-let ( ~: ) = f => f ()
+let (~:) = f => f();
 
 /* Regexes */
 let newline = [%sedlex.regexp? '\n' | "\r\n" | '\r' | '\012'];
@@ -315,7 +314,6 @@ let starts_a_number = [%sedlex.regexp?
 ];
 
 module Tokenizer = {
-
   let lexeme = Sedlexing.utf8;
 
   let consume_whitespace = buf =>
@@ -353,7 +351,7 @@ module Tokenizer = {
       char_code == 0 || is_surrogate(char_code)
         ? Error((Uchar.rep, Tokens.Invalid_code_point)) : Ok(char);
     | eof => Error((Uchar.rep, Tokens.Eof))
-    | any => Ok(lexeme(buf, ))
+    | any => Ok(lexeme(buf))
     | _ => ~:unreachable
     };
   };
@@ -378,7 +376,7 @@ module Tokenizer = {
         let _ = consume_whitespace(buf);
         switch%sedlex (buf) {
         | ')' => Ok(Tokens.URL(acc))
-        | eof => Error((Tokens.URL(acc),Tokens.Eof))
+        | eof => Error((Tokens.URL(acc), Tokens.Eof))
         | _ =>
           consume_remnants_bad_url(buf);
           Ok(BAD_URL);
@@ -407,7 +405,7 @@ module Tokenizer = {
     read(lexeme(buf));
   };
 
-   let (let.ok) = Result.bind;
+  let (let.ok) = Result.bind;
 
   // https://drafts.csswg.org/css-syntax-3/#consume-name
   let consume_identifier = buf => {

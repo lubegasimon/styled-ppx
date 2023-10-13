@@ -1,7 +1,7 @@
 open Alcotest;
 
 let parse = input => {
-  open Css_lexer
+  open Css_lexer;
   let values =
     switch (Css_lexer.from_string(input)) {
     | Ok(values) => values
@@ -24,7 +24,10 @@ let list_parse_tokens_to_string = tokens =>
        fun
        | Ok(token) => render_token(token)
        | Error((token, err)) =>
-         "Error(" ++ Tokens.show_error(err) ++ ") " ++ Tokens.show_token(token),
+         "Error("
+         ++ Tokens.show_error(err)
+         ++ ") "
+         ++ Tokens.show_token(token),
      )
   |> String.concat(" ")
   |> String.trim;
@@ -66,11 +69,7 @@ let tests =
     ({|bar|}, [IDENT("bar")], 3),
     ({||}, [EOF], 0),
     ({|!|}, [DELIM("!")], 1),
-    (
-      "1 / 1",
-      [NUMBER(1.), WS, DELIM("/"), WS, NUMBER(1.)],
-      5,
-    ),
+    ("1 / 1", [NUMBER(1.), WS, DELIM("/"), WS, NUMBER(1.)], 5),
     (
       {|calc(10px + 10px)|},
       [

@@ -1,6 +1,5 @@
 open Alcotest;
 
-
 let parse = input => {
   let buffer = Sedlexing.Utf8.from_string(input) |> Lex_buffer.of_sedlex;
   let rec from_string = acc => {

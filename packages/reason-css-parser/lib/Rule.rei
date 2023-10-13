@@ -1,4 +1,4 @@
-open Reason_css_lexer;
+open Css_lexer;
 
 /*
    A rule is a function that maps a list of tokens into a tuple where
