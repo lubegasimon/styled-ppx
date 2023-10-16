@@ -3,6 +3,6 @@ Alcotest.run(
   [
     ("Lexer", Css_lexer_test.tests),
     ("Parser", Css_parser_test.tests),
-    ("Tokenizer", Tokenizer_tests.tests),
+    ("Tokenizer", Tokenizer_test.tests),
   ],
 );

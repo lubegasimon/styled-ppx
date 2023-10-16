@@ -13,7 +13,6 @@
   css-spec-parser
   parser
   ppx
-  reason-css-lexer
   reason-css-parser
   renderer
   string_interpolation))

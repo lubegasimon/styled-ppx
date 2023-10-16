@@ -1,10 +1,11 @@
 open Alcotest;
+module Parser = Css_parser;
 
 let parse = input => {
   let buffer = Sedlexing.Utf8.from_string(input) |> Lex_buffer.of_sedlex;
   let rec from_string = acc => {
     switch (Css_lexer.get_next_token(buffer)) {
-    | Tokens.EOF => []
+    | Parser.EOF => []
     | token => [token, ...from_string(acc)]
     };
   };
@@ -16,7 +17,7 @@ let parse = input => {
 
 let render_token =
   fun
-  | Tokens.EOF => ""
+  | Parser.EOF => ""
   | t => Tokens.token_to_debug(t);
 
 let list_parse_tokens_to_string = tokens =>
@@ -26,7 +27,7 @@ let list_tokens_to_string = tokens =>
   tokens |> List.map(render_token) |> String.concat(" ") |> String.trim;
 
 let success_tests_data =
-  Tokens.[
+  [
     (" \n\t ", [WS]),
     ({|"something"|}, [STRING("something")]),
     ({|'tuturu'|}, [STRING("tuturu")]),

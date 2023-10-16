@@ -7,8 +7,7 @@ let menhir = MenhirLib.Convert.Simplified.traditional2revised;
 
 let parse = (skip_whitespaces, buf, parser) => {
   Lexer.skip_whitespace.contents = skip_whitespaces;
-
-  let last_token = ref((Tokens.EOF, Lexing.dummy_pos, Lexing.dummy_pos));
+  let last_token = ref((Parser.EOF, Lexing.dummy_pos, Lexing.dummy_pos));
 
   let next_token = () => {
     last_token := Lexer.get_next_tokens_with_location(buf);
@@ -25,6 +24,7 @@ let parse = (skip_whitespaces, buf, parser) => {
     let msg =
       Printf.sprintf(
         "Parse error while reading token '%s'",
+        // FIXME: We import Parser in Tokens because of this [token]
         Tokens.token_to_string(token),
       );
     Error((loc, msg));

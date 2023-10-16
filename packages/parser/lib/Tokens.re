@@ -110,9 +110,11 @@ let humanize =
   | ASTERISK => "ASTERISK"
   | NTH_FUNCTION(fn) => "FUNCTION(" ++ fn ++ ")";
 
+module Parser = Css_parser;
+
 let token_to_string =
   fun
-  | EOF => ""
+  | Parser.EOF => ""
   | LEFT_BRACE => "{"
   | RIGHT_BRACE => "}"
   | LEFT_PAREN => "("
@@ -152,14 +154,14 @@ let token_to_string =
   | BAD_IDENT => "bad indent"
   /*
    FIXME:
-   (CDO|CDC|AT_KEYWORD _|HASH (_, _)|BAD_STRING _|NUMBER _|
+   (|AT_KEYWORD _|HASH (_, _)|NUMBER _|
    PERCENTAGE _|DIMENSION (_, _))
    */
   | _ => assert(false);
 
 let token_to_debug =
   fun
-  | EOF => "EOF"
+  | Parser.EOF => "EOF"
   | LEFT_BRACE => "LEFT_BRACE"
   | RIGHT_BRACE => "RIGHT_BRACE"
   | LEFT_PAREN => "LEFT_PAREN"
