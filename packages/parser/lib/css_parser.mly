@@ -16,6 +16,7 @@ open Css_types
 %token DOUBLE_COLON
 %token SEMI_COLON
 %token PERCENT
+%token <float> PERCENTAGE
 %token IMPORTANT
 %token AMPERSAND
 %token ASTERISK
@@ -32,14 +33,18 @@ open Css_types
 %token <string> NTH_FUNCTION
 %token <string> URL
 %token BAD_URL
+%token <string> AT_KEYWORD
 %token <string> AT_MEDIA
 %token <string> AT_KEYFRAMES
 %token <string> AT_RULE
 %token <string> AT_RULE_STATEMENT
+%token <string * [`ID | `UNRESTRICTED]> HASH
 %token <string> HASH_
 %token <string> NUMBER_
+%token <float> NUMBER
 %token <string> UNICODE_RANGE
 %token <string * string> FLOAT_DIMENSION
+%token <float * string> DIMENSION
 %token <string * string> DIMENSION_
 %token <string list> INTERPOLATION
 
