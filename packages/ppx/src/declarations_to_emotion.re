@@ -278,6 +278,7 @@ let rec render_function_calc = (~loc, calc_sum) => {
     /* This isn't a great design of the types, but we need to know the operation
        which is in the first position of the array, we ensure that there's one value
        since we are on this branch of the switch */
+    // TODO: Don't use List.hd
     let op = pick_operation(List.hd(list_of_sums));
     switch (op) {
     | `Dash () =>

@@ -7,6 +7,7 @@ let parse = input => {
     | Ok(values) => values
     | Error(`Frozen) => failwith("Parser got frozen")
     };
+  // TODO: Don't use List.hd
   let {loc, _} = List.hd(values);
   let values = values |> List.map(({txt, _}) => txt);
   (loc, values);
