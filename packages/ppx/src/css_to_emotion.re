@@ -61,11 +61,17 @@ let render_variable = (~loc, v) => {
 
 let source_code_of_loc = (loc: Location.t) => {
   let Location.{loc_start, loc_end, _} = loc;
-  let Lex_buffer.{buf, pos, _} = Lex_buffer.last_buffer^;
-  let pos_offset = pos.pos_cnum;
-  let loc_start = loc_start.pos_cnum - pos_offset;
-  let loc_end = loc_end.pos_cnum - pos_offset;
-  Sedlexing.Latin1.sub_lexeme(buf, loc_start, loc_end - loc_start);
+  switch (Driver_.last_buffer^) {
+  | Some(buffer: Sedlexing.lexbuf) =>
+    /* TODO: pos_offset is hardcoded to 0, unsure about the effects */
+    let pos_offset = 0;
+    let loc_start = loc_start.pos_cnum - pos_offset;
+    let loc_end = loc_end.pos_cnum - pos_offset;
+    Sedlexing.Latin1.sub_lexeme(buffer, loc_start, loc_end - loc_start);
+  | None =>
+    /* TODO: Raise an exception */
+    failwith("last buffer not set")
+  };
 };
 
 let concat = (~loc, expr, acc) => {
@@ -223,8 +229,11 @@ and render_media_query = (at_rule: at_rule): Parsetree.expression => {
 and render_declaration = (d: declaration): list(Parsetree.expression) => {
   let (property, name_loc) = d.name;
   let (_valueList, loc) = d.value;
+  /* print_endline(property); */
+  /* print_endline(Css_types.show_component_value_list(valueList)); */
   /* String.trim is a hack, location should be correct and not contain any whitespace */
-  let value_source = source_code_of_loc(loc) |> String.trim;
+  let source_code = source_code_of_loc(loc);
+  let value_source = source_code |> String.trim;
 
   switch (
     Declarations_to_emotion.parse_declarations(

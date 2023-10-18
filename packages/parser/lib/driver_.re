@@ -31,43 +31,39 @@ let parse = (skip_whitespaces, lexbuf, parser) => {
   };
 };
 
-// TODO: Don't pass ~container_lnum and pos around, handle location all in here.
-let parse_string =
-    (~skip_whitespace, parser, string) => {
-      // let lexbuf = Lex_buffer.from_string(~container_lnum?, ~pos?, string);
-      // let buf = Lex_buffer.utf8(~skip=0, ~drop = 0, lexbuf);
-  parse(
-    skip_whitespace,
-    Sedlexing.Utf8.from_string(string),
-    parser,
-  );
+let from_string_of_sedlex = (~pos: option(Lexing.position)=?, string) => {
+  let buffer = Sedlexing.Latin1.from_string(string);
+  switch (pos) {
+  | Some(p) => Sedlexing.set_position(buffer, p)
+  | None => ()
+  };
+  buffer;
 };
 
-let parse_declaration_list = ( input: string) => {
-  parse_string(
-    ~skip_whitespace=false,
-    Parser.declaration_list,
-    input,
-  );
+let last_buffer = ref(None);
+
+// TODO: Don't pass ~container_lnum and pos around, handle location all in here.
+let parse_string = (~skip_whitespace, ~pos, parser, string) => {
+  print_endline(string);
+
+  // let lexbuf = Lex_buffer.from_string(~container_lnum?, ~pos?, string);
+  // let buf = Lex_buffer.utf8(~skip=0, ~drop = 0, lexbuf);
+  let buffer = Sedlexing.Utf8.from_string(string);
+
+  last_buffer := Some(from_string_of_sedlex(~pos?, string));
+
+  parse(skip_whitespace, buffer, parser);
+};
+
+let parse_declaration_list = (input: string) => {
+  parse_string(~skip_whitespace=false, Parser.declaration_list, input);
 };
 
 let parse_declaration = (input: string) =>
-  parse_string(
-    ~skip_whitespace=true,
-    Parser.declaration,
-    input,
-  );
+  parse_string(~skip_whitespace=true, Parser.declaration, input);
 
 let parse_stylesheet = (input: string) =>
-  parse_string(
-    ~skip_whitespace=false,
-    Parser.stylesheet,
-    input,
-  );
+  parse_string(~skip_whitespace=false, Parser.stylesheet, input);
 
 let parse_keyframes = (input: string) =>
-  parse_string(
-    ~skip_whitespace=false,
-    Parser.keyframes,
-    input,
-  );
+  parse_string(~skip_whitespace=false, Parser.keyframes, input);

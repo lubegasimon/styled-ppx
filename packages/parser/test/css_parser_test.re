@@ -2,8 +2,8 @@ open Alcotest;
 
 let parse = input => {
   // let container_lnum = 0;
-  // let pos = Lexing.dummy_pos;
-  switch (Driver_.parse_stylesheet(input)) {
+  let pos = Some(Lexing.dummy_pos);
+  switch (Driver_.parse_stylesheet(~pos, input)) {
   | Ok(ast) => Ok(ast)
   | Error((_loc, msg)) => Error(msg)
   };

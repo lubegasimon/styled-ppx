@@ -36,8 +36,8 @@
   }
  */
 
-let parse = (payload, _loc: Ppxlib.location) => {
-  // let loc_start = loc.loc_start;
+let parse = (~loc: Ppxlib.location, payload) => {
+  let loc_start = loc.loc_start;
   /* TODO: Bring back "delimiter location conditional logic" */
   /* let loc_start =
      switch (delim) {
@@ -52,7 +52,7 @@ let parse = (payload, _loc: Ppxlib.location) => {
   switch (
     Driver_.parse_declaration_list(
       // ~container_lnum=loc_start.pos_lnum,
-      // ~pos=loc_start,
+      ~pos=Some(loc_start),
       payload,
     )
   ) {
