@@ -7,7 +7,7 @@ module StringMap = Map.Make(String);
 let (let.ok) = Result.bind;
 
 let apply_parser = (parser, tokens_with_loc) => {
-  open Css_lexer;
+  open Lexer_;
 
   let tokens =
     tokens_with_loc
@@ -41,7 +41,7 @@ let apply_parser = (parser, tokens_with_loc) => {
 
 let parse = (rule_parser: Rule.rule('a), str) => {
   let.ok tokens_with_loc =
-    Css_lexer.from_string(str) |> Result.map_error(_ => "frozen");
+    Lexer_.from_string(str) |> Result.map_error(_ => "frozen");
 
   apply_parser(rule_parser, tokens_with_loc);
 };

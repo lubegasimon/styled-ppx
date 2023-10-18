@@ -1,9 +1,9 @@
 open Alcotest;
 
 let parse = input => {
-  open Css_lexer;
+  open Lexer_;
   let values =
-    switch (Css_lexer.from_string(input)) {
+    switch (Lexer_.from_string(input)) {
     | Ok(values) => values
     | Error(`Frozen) => failwith("Parser got frozen")
     };

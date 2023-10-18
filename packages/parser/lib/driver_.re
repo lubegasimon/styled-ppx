@@ -24,13 +24,13 @@ let parse = (skip_whitespaces, buf, parser) => {
     let msg =
       Printf.sprintf(
         "Parse error while reading token '%s'",
-        // FIXME: We import Parser in Tokens because of this [token]
         Tokens.token_to_string(token),
       );
     Error((loc, msg));
   };
 };
 
+// TODO: Don't pass ~container_lnum and pos around, handle location all in here.
 let parse_string =
     (~skip_whitespace, ~container_lnum=?, ~pos=?, parser, string) => {
   parse(

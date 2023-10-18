@@ -640,7 +640,7 @@ module Tokenizer = {
       | newline => Error((acc, New_line))
       | escape => read_escaped()
       | any => read(acc ++ lexeme(buf))
-      | _ => failwith("should be unreachable")
+      | _ => ~:unreachable
       };
     };
 
@@ -692,7 +692,6 @@ module Tokenizer = {
       };
     };
   };
-
   // FIXME: This is never called
   // https://drafts.csswg.org/css-syntax-3/#consume-comment
   // let consume_comment = buf => {
@@ -707,7 +706,6 @@ module Tokenizer = {
   //   | _ => Ok()
   //   };
   // };
-
   let consume = buf => {
     let consume_hash = () =>
       switch%sedlex (buf) {
@@ -719,7 +717,6 @@ module Tokenizer = {
           Sedlexing.rollback(buf);
           let.ok string =
             consume_identifier_(buf) |> handle_consume_identifier_;
-          // FIXME: Why does the parser treat 2 arguments like this?
           Ok(Tokens.HASH(string, `ID));
         | _ =>
           let.ok string =
@@ -741,7 +738,6 @@ module Tokenizer = {
         let _ = Sedlexing.next(buf);
         Ok(DELIM("-"));
       };
-
     switch%sedlex (buf) {
     | whitespace => Ok(consume_whitespace_(buf))
     | "\"" => consume_string("\"", buf)
@@ -920,33 +916,4 @@ let get_next_tokens_with_location = buf => {
 type token_with_location = {
   txt: result(Tokens.token, (Tokens.token, Tokens.error)),
   loc: Ppxlib.Location.t,
-};
-
-// TODO: that's definitly ugly
-/* TODO: Use lex_buffer from parser to keep track of the file */
-let from_string = string => {
-  let buf = Sedlexing.from_string(string);
-  let rec read = acc => {
-    let (loc_start, _) = Sedlexing.lexing_positions(buf);
-    let value = Tokenizer.consume(buf);
-    let (_, loc_end) = Sedlexing.lexing_positions(buf);
-
-    let token_with_loc = {
-      txt: value,
-      loc: {
-        loc_start,
-        loc_end,
-        loc_ghost: false,
-      },
-    };
-
-    let acc = [token_with_loc, ...acc];
-    switch (value) {
-    | Ok(EOF) => Ok(acc)
-    | _ when loc_start.pos_cnum == loc_end.pos_cnum => Error(`Frozen)
-    | _ => read(acc)
-    };
-  };
-
-  read([]);
 };
