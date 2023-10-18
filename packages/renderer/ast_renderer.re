@@ -10,8 +10,8 @@ let render_help = () => {
   print_endline("");
 };
 
-let container_lnum = 0;
-let pos = Lexing.dummy_pos;
+// let container_lnum = 0;
+// let pos = Lexing.dummy_pos;
 let args = Sys.argv |> Array.to_list;
 let input = List.nth_opt(args, 1);
 let help =
@@ -29,7 +29,7 @@ switch (input, help) {
 | (Some(_), true)
 | (None, _) => render_help()
 | (Some(css), _) =>
-  switch (Driver_.parse_declaration_list(~container_lnum, ~pos, css)) {
+  switch (Driver_.parse_declaration_list(css)) {
   | Ok(declarations) =>
     print_endline(Css_types.show_rule_list(declarations))
   | Error((_loc, msg)) =>

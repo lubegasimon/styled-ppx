@@ -2,7 +2,8 @@ open Alcotest;
 module Parser = Css_parser;
 
 let parse = input => {
-  let buffer = Sedlexing.Utf8.from_string(input) |> Lex_buffer.of_sedlex;
+  let buffer = Sedlexing.Utf8.from_string(input) 
+  // |> Lex_buffer.of_sedlex;
   let rec from_string = acc => {
     switch (Css_lexer.get_next_token(buffer)) {
     | Parser.EOF => []

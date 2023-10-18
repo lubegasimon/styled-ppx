@@ -728,9 +728,9 @@ let _ =
           string_payload_pattern,
           (~loc, ~path, payload) => {
             File.set(path);
-            let pos = loc.loc_start;
-            let container_lnum = pos.pos_lnum;
-            switch (Driver_.parse_declaration(~container_lnum, ~pos, payload)) {
+            let _pos = loc.loc_start;
+            // let container_lnum = pos.pos_lnum;
+            switch (Driver_.parse_declaration(payload)) {
             | Ok(declarations) =>
               let declarationListValues =
                 Css_to_emotion.render_declaration(declarations);
@@ -750,9 +750,9 @@ let _ =
           string_payload_pattern,
           (~loc, ~path, payload) => {
             File.set(path);
-            let pos = loc.loc_start;
-            let container_lnum = pos.pos_lnum;
-            switch (Driver_.parse_stylesheet(~container_lnum, ~pos, payload)) {
+            let _pos = loc.loc_start;
+            // let container_lnum = pos.pos_lnum;
+            switch (Driver_.parse_stylesheet(payload)) {
             | Ok(stylesheets) => Css_to_emotion.render_global(stylesheets)
             | Error((loc, msg)) => Generate_lib.error(~loc, msg)
             };
@@ -766,9 +766,9 @@ let _ =
           string_payload_pattern,
           (~loc, ~path, payload) => {
             File.set(path);
-            let pos = loc.loc_start;
-            let container_lnum = pos.pos_lnum;
-            switch (Driver_.parse_keyframes(~container_lnum, ~pos, payload)) {
+            let _pos = loc.loc_start;
+            // let container_lnum = pos.pos_lnum;
+            switch (Driver_.parse_keyframes(payload)) {
             | Ok(declarations) =>
               Css_to_emotion.render_keyframes(declarations)
             | Error((loc, msg)) => Generate_lib.error(~loc, msg)
