@@ -1,12 +1,6 @@
 (test
  (name Runner)
- (libraries
-  sedlex
-  styled-ppx.css-parser
-  alcotest
-  ppxlib
-  ppxlib.astlib
-  ppx_deriving.runtime))
+ (libraries sedlex styled-ppx.css-parser alcotest))
 
 (rule
  (alias parser_test)

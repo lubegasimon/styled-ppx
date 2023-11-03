@@ -1,4 +1,4 @@
-open Css_AtomicTypes
+[@@@warning "-20" (* [ignored-extra-argument] *)]
 
 type rule =
   | D of string * string
@@ -9,18 +9,34 @@ type rule =
 let rec ruleToDict =
  fun [@bs] dict rule ->
   (match rule with
-  | D (name, value) -> Js.Dict.set dict name (Js.Json.string value)
-  | S (name, ruleset) -> Js.Dict.set dict name (toJson ruleset)
+  | D (name, value) when name = {js|content|js} ->
+    let (_ : unit) =
+      Js.Dict.set dict name
+        (Js.Json.string (if value = {js||js} then {js|""|js} else value))
+    in
+    ()
+  | D (name, value) ->
+    let (_ : unit) = Js.Dict.set dict name (Js.Json.string value) in
+    ()
+  | S (name, ruleset) ->
+    let (_ : unit) = Js.Dict.set dict name (toJson ruleset) in
+    ()
   | PseudoClass (name, ruleset) ->
-    dict |. Js.Dict.set ({js|:|js} ^ name) (toJson ruleset)
+    let (_ : unit) = dict |. Js.Dict.set ({js|:|js} ^ name) (toJson ruleset) in
+    ()
   | PseudoClassParam (name, param, ruleset) ->
-    Js.Dict.set dict
-      ({js|:|js} ^ name ^ {js|(|js} ^ param ^ {js|)|js})
-      (toJson ruleset));
+    let (_ : unit) =
+      Js.Dict.set dict
+        ({js|:|js} ^ name ^ {js|(|js} ^ param ^ {js|)|js})
+        (toJson ruleset)
+    in
+    ());
   dict
 
 and toJson rules =
   Std.Array.reduceU rules (Js.Dict.empty ()) ruleToDict |. Js.Json.object_
+
+open Css_AtomicTypes
 
 type nonrec animationName = string
 

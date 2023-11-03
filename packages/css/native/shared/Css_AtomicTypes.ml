@@ -1,5 +1,3 @@
-module Std = Kloth
-
 module Cascading = struct
   type nonrec t =
     [ `initial
@@ -2113,10 +2111,7 @@ module FontFamilyName = struct
 
   let toString x =
     match x with
-    | `custom value ->
-      (match Js.String2.get value 0 with
-      | {|"|} | {|'|} -> value
-      | _ -> {|"|} ^ value ^ {|"|})
+    | `custom name -> name
     | `serif -> {js|serif|js}
     | `sansSerif -> {js|sans-serif|js}
     | `cursive -> {js|cursive|js}
@@ -2257,17 +2252,6 @@ module Content = struct
     | `text of string
     ]
 
-  let text_to_string value =
-    match value with
-    | "" -> {|''|}
-    | {|""|} -> {|''|}
-    | value ->
-      (match Js.String2.get value 0, Js.String2.length value with
-      | {|"|}, 1 -> {|'"'|}
-      | {|'|}, 1 -> {|"'"|}
-      | {|"|}, _ | {|'|}, _ -> value
-      | _ -> {|"|} ^ value ^ {|"|})
-
   let toString x =
     match x with
     | `none -> {js|none|js}
@@ -2277,7 +2261,7 @@ module Content = struct
     | `noOpenQuote -> {js|no-open-quote|js}
     | `noCloseQuote -> {js|no-close-quote|js}
     | `attr name -> ({js|attr(|js} ^ name) ^ {js|)|js}
-    | `text v -> text_to_string v
+    | `text value -> value
 end
 
 module SVG = struct

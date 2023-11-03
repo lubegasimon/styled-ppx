@@ -4,7 +4,7 @@
  (libraries
   sedlex
   styled-ppx.css-spec-parser
-  styled-ppx.css-parser
+  styled-ppx.reason-css-lexer
   ppx_deriving.runtime
   compiler-libs)
  (preprocess

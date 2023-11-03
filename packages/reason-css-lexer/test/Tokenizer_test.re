@@ -1,13 +1,12 @@
+open Reason_css_lexer;
 open Alcotest;
 
 let parse = input => {
-  open Css_lexer;
   let values =
     switch (from_string(input)) {
     | Ok(values) => values
     | Error(`Frozen) => failwith("Parser got frozen")
     };
-
   let {loc, _} = List.hd(values);
   let values = values |> List.map(({txt, _}) => txt);
   (loc, values);
@@ -15,8 +14,8 @@ let parse = input => {
 
 let render_token =
   fun
-  | Tokens.EOF => ""
-  | t => Tokens.show_token(t);
+  | EOF => ""
+  | t => show_token(t);
 
 let list_parse_tokens_to_string = tokens =>
   tokens
@@ -25,10 +24,7 @@ let list_parse_tokens_to_string = tokens =>
        fun
        | Ok(token) => render_token(token)
        | Error((token, err)) =>
-         "Error("
-         ++ Tokens.show_error(err)
-         ++ ") "
-         ++ Tokens.show_token(token),
+         "Error(" ++ show_error(err) ++ ") " ++ show_token(token),
      )
   |> String.concat(" ")
   |> String.trim;
@@ -38,46 +34,52 @@ let list_tokens_to_string = tokens =>
 
 let tests =
   [
-    (" \n\t ", [Tokens.WS], 4),
+    (" \n\t ", [WHITESPACE], 4),
     ({|"something"|}, [STRING("something")], 11),
     // TODO: is that right?
     ({|#2|}, [HASH("2", `UNRESTRICTED)], 2),
     ({|#abc|}, [HASH("abc", `ID)], 4),
     ({|#|}, [DELIM("#")], 1),
     ({|'tuturu'|}, [STRING("tuturu")], 8),
-    ({|(|}, [LEFT_PAREN], 1),
-    ({|)|}, [RIGHT_PAREN], 1),
+    ({|(|}, [LEFT_PARENS], 1),
+    ({|)|}, [RIGHT_PARENS], 1),
     ({|+12.3|}, [NUMBER(12.3)], 5),
     ({|+|}, [DELIM("+")], 1),
     ({|,|}, [COMMA], 1),
     ({|-45.6|}, [NUMBER(-45.6)], 5),
+    ({|-->|}, [CDC], 3),
     ({|--potato|}, [IDENT("--potato")], 8),
     ({|-|}, [DELIM("-")], 1),
     ({|.7|}, [NUMBER(0.7)], 2),
     ({|.|}, [DELIM(".")], 1),
     ({|:|}, [COLON], 1),
-    ({|;|}, [SEMI_COLON], 1),
+    ({|;|}, [SEMICOLON], 1),
+    ({|<!--|}, [CDO], 4),
     ({|<|}, [DELIM("<")], 1),
     ({|@mayushii|}, [AT_KEYWORD("mayushii")], 9),
     ({|@|}, [DELIM("@")], 1),
-    ({|[|}, [LEFT_BRACKET], 1),
+    ({|[|}, [LEFT_SQUARE], 1),
     ("\\@desu", [IDENT("@desu")], 6),
-    ({|]|}, [RIGHT_BRACKET], 1),
+    ({|]|}, [RIGHT_SQUARE], 1),
     ({|12345678.9|}, [NUMBER(12345678.9)], 10),
     ({|bar|}, [IDENT("bar")], 3),
     ({||}, [EOF], 0),
     ({|!|}, [DELIM("!")], 1),
-    ("1 / 1", [NUMBER(1.), WS, DELIM("/"), WS, NUMBER(1.)], 5),
+    (
+      "1 / 1",
+      [NUMBER(1.), WHITESPACE, DELIM("/"), WHITESPACE, NUMBER(1.)],
+      5,
+    ),
     (
       {|calc(10px + 10px)|},
       [
         FUNCTION("calc"),
         DIMENSION(10., "px"),
-        WS,
+        WHITESPACE,
         DELIM("+"),
-        WS,
+        WHITESPACE,
         DIMENSION(10., "px"),
-        RIGHT_PAREN,
+        RIGHT_PARENS,
       ],
       17,
     ),
@@ -88,8 +90,8 @@ let tests =
         COLON,
         FUNCTION("url"),
         STRING("img_tree.gif"),
-        WS,
-        RIGHT_PAREN,
+        WHITESPACE,
+        RIGHT_PARENS,
       ],
       37,
     ),
@@ -99,22 +101,22 @@ let tests =
         FUNCTION("calc"),
         DIMENSION(10., "px"),
         DELIM("+"),
-        WS,
+        WHITESPACE,
         DIMENSION(10., "px"),
-        RIGHT_PAREN,
+        RIGHT_PARENS,
       ],
       16,
     ),
-    ({|calc(10%)|}, [FUNCTION("calc"), PERCENTAGE(10.), RIGHT_PAREN], 9),
+    ({|calc(10%)|}, [FUNCTION("calc"), PERCENTAGE(10.), RIGHT_PARENS], 9),
     (
       {|$(Module.variable)|},
       [
         DELIM("$"),
-        LEFT_PAREN,
+        LEFT_PARENS,
         IDENT("Module"),
         DELIM("."),
         IDENT("variable"),
-        RIGHT_PAREN,
+        RIGHT_PARENS,
       ],
       18,
     ),
@@ -122,11 +124,11 @@ let tests =
       {|$(Module.variable')|},
       [
         DELIM("$"),
-        LEFT_PAREN,
+        LEFT_PARENS,
         IDENT("Module"),
         DELIM("."),
         IDENT("variable'"),
-        RIGHT_PAREN,
+        RIGHT_PARENS,
       ],
       19,
     ),
@@ -148,10 +150,12 @@ let tests =
        let assertion = () =>
          check(
            string,
-           "should succeed lexing: " ++ input,
+           "should succed lexing: " ++ input,
            list_parse_tokens_to_string(values),
            list_tokens_to_string(output),
          );
 
        test_case(input, `Quick, assertion);
      });
+
+Alcotest.run("CSS Lexer", [("Tokenizer", tests)]);

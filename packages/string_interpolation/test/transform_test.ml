@@ -16,84 +16,54 @@ let ast =
   in
   testable pp_ast compare
 
-let assert_equal title actual expected = check ast title expected actual
-let test0 () = assert_equal "one char" (transform "x") [%expr {js|x|js}]
-
-let test1 () =
-  assert_equal "dont transform string" (transform "Hello") [%expr {js|Hello|js}]
+let test1 () = check ast "one char" [%expr {js|x|js}] (transform "x")
 
 let test2 () =
-  assert_equal "dont transform multiple strings" (transform "Hello world")
-    [%expr {js|Hello world|js}]
+  check ast "dont transform string" [%expr {js|Hello|js}] (transform "Hello")
 
-let test3 () = assert_equal "inline variable" (transform "$(name)") [%expr name]
+let test3 () =
+  check ast "dont transform multiple strings" [%expr {js|Hello world|js}]
+    (transform "Hello world")
 
-let test4 () =
-  assert_equal "concat string before variable"
-    (transform "Hello $(name)")
-    [%expr {js|Hello |js} ^ name]
+let test4 () = check ast "inline variable" [%expr name] (transform "$(name)")
 
 let test5 () =
-  assert_equal "concat string after variable" (transform "H$(name)")
-    [%expr {js|H|js} ^ name]
+  check ast "concat string before variable" [%expr {js|Hello |js} ^ name]
+    (transform "Hello $(name)")
 
 let test6 () =
-  assert_equal "concat string after variable"
+  check ast "concat string after variable" [%expr name ^ {js| Hello|js}]
     (transform "$(name) Hello")
-    [%expr name ^ {js| Hello|js}]
 
 let test7 () =
-  assert_equal "concat more than one variable"
+  check ast "concat more than one variable" [%expr name ^ name]
     (transform "$(name)$(name)")
-    [%expr name ^ name]
 
 let test8 () =
-  assert_equal "concat more than one variable"
-    (transform "$(name) hello $(name)")
+  check ast "concat more than one variable"
     [%expr name ^ {js| hello |js} ^ name]
+    (transform "$(name) hello $(name)")
 
 let test9 () =
-  assert_equal "empty variable"
-    (transform "$(name) hello $(name) world")
+  check ast "empty variable"
     [%expr name ^ {js| hello |js} ^ name ^ {js| world|js}]
+    (transform "$(name) hello $(name) world")
 
 let test10 () =
-  assert_equal "test"
-    (transform "$(name)$(name) : $(name)$(name)")
+  check ast "test"
     [%expr name ^ name ^ {js| : |js} ^ name ^ name]
+    (transform "$(name)$(name) : $(name)$(name)")
 
 let test11 () =
-  assert_equal "test" (transform "$(Module.value)") [%expr Module.value]
+  check ast "test" [%expr Module.value] (transform "$(Module.value)")
 
 let test12 () =
-  assert_equal "test"
-    (transform "$(Module.value) more")
+  check ast "test"
     [%expr Module.value ^ {js| more|js}]
-
-let test13 () = assert_equal "$" (transform {|$|}) [%expr {js|$|js}]
-
-let test14 () =
-  assert_equal "before" (transform {|before$|}) [%expr {js|before$|js}]
-
-let test15 () =
-  assert_equal "before with space" (transform {|before $|})
-    [%expr {js|before $|js}]
-
-let test16 () =
-  assert_equal "after" (transform {|$after|}) [%expr {js|$after|js}]
-
-let test17 () =
-  assert_equal "both" (transform {|before$after|}) [%expr {js|before$after|js}]
-
-let test18 () =
-  assert_equal "double" (transform {|$ a $|}) [%expr {js|$ a $|js}]
-
-let test19 () = assert_equal "$()" (transform {|$()|}) [%expr {js|$()|js}]
-let test20 () = assert_equal "$(" (transform {|$(|}) [%expr {js|$(|js}]
+    (transform "$(Module.value) more")
 
 let cases =
   [
-    "Test 0", `Quick, test0;
     "Test 1", `Quick, test1;
     "Test 2", `Quick, test2;
     "Test 3", `Quick, test3;
@@ -106,14 +76,6 @@ let cases =
     "Test 10", `Quick, test10;
     "Test 11", `Quick, test11;
     "Test 12", `Quick, test12;
-    "Test 13", `Quick, test13;
-    "Test 14", `Quick, test14;
-    "Test 15", `Quick, test15;
-    "Test 16", `Quick, test16;
-    "Test 17", `Quick, test17;
-    "Test 18", `Quick, test18;
-    "Test 19", `Quick, test19;
-    "Test 20", `Quick, test20;
   ]
 
 let () = run "String interpolation test suit" [ "Transform", cases ]

@@ -147,7 +147,7 @@ module Mapper = {
         when isStyled(extensionName) =>
       let htmlTag = getHtmlTagUnsafe(~loc=extensionLoc, extensionName);
       let styles =
-        switch (Payload.parse(str, ~loc=stringLoc)) {
+        switch (Payload.parse(str, stringLoc)) {
         | Ok(declarations) =>
           declarations
           |> Css_to_emotion.render_declarations
@@ -287,7 +287,7 @@ module Mapper = {
         ],
       ) =>
       let expr =
-        switch (Payload.parse(styles, ~loc)) {
+        switch (Payload.parse(styles, loc)) {
         | Ok(declarations) =>
           declarations
           |> Css_to_emotion.render_declarations
@@ -705,7 +705,7 @@ let _ =
             File.set(path);
             switch (payload) {
             | `String({loc, txt}, _delim) =>
-              switch (Payload.parse(txt, ~loc)) {
+              switch (Payload.parse(txt, loc)) {
               | Ok(declarations) =>
                 declarations
                 |> Css_to_emotion.render_declarations
@@ -728,8 +728,11 @@ let _ =
           string_payload_pattern,
           (~loc, ~path, payload) => {
             File.set(path);
-            let pos = Some(loc.loc_start);
-            switch (Driver_.parse_declaration(~pos, payload)) {
+            let pos = loc.loc_start;
+            let container_lnum = pos.pos_lnum;
+            switch (
+              Css_lexer.parse_declaration(~container_lnum, ~pos, payload)
+            ) {
             | Ok(declarations) =>
               let declarationListValues =
                 Css_to_emotion.render_declaration(declarations);
@@ -749,8 +752,11 @@ let _ =
           string_payload_pattern,
           (~loc, ~path, payload) => {
             File.set(path);
-            let pos = Some(loc.loc_start);
-            switch (Driver_.parse_stylesheet(~pos, payload)) {
+            let pos = loc.loc_start;
+            let container_lnum = pos.pos_lnum;
+            switch (
+              Css_lexer.parse_stylesheet(~container_lnum, ~pos, payload)
+            ) {
             | Ok(stylesheets) => Css_to_emotion.render_global(stylesheets)
             | Error((loc, msg)) => Generate_lib.error(~loc, msg)
             };
@@ -764,8 +770,9 @@ let _ =
           string_payload_pattern,
           (~loc, ~path, payload) => {
             File.set(path);
-            let pos = Some(loc.loc_start);
-            switch (Driver_.parse_keyframes(~pos, payload)) {
+            let pos = loc.loc_start;
+            let container_lnum = pos.pos_lnum;
+            switch (Css_lexer.parse_keyframes(~container_lnum, ~pos, payload)) {
             | Ok(declarations) =>
               Css_to_emotion.render_keyframes(declarations)
             | Error((loc, msg)) => Generate_lib.error(~loc, msg)

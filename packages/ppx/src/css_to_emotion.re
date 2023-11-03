@@ -4,8 +4,6 @@ open Css_types;
 module Helper = Ast_helper;
 module Builder = Ast_builder.Default;
 
-exception Empty_buffer(string);
-
 let reduce_result = (~empty, fn, list) => {
   let rec sequence_result =
     fun
@@ -63,16 +61,13 @@ let render_variable = (~loc, v) => {
 
 let source_code_of_loc = (loc: Location.t) => {
   let Location.{loc_start, loc_end, _} = loc;
-  switch (Driver_.last_buffer^) {
-  | Some(buffer: Sedlexing.lexbuf) =>
-    /* TODO: pos_offset is hardcoded to 0, unsure about the effects */
-    let pos_offset = 0;
-    let loc_start = loc_start.pos_cnum - pos_offset;
-    let loc_end = loc_end.pos_cnum - pos_offset;
-    Sedlexing.Latin1.sub_lexeme(buffer, loc_start, loc_end - loc_start);
-  | None => raise(Empty_buffer("last buffer not set"))
-  };
+  let Lex_buffer.{buf, pos, _} = Lex_buffer.last_buffer^;
+  let pos_offset = pos.pos_cnum;
+  let loc_start = loc_start.pos_cnum - pos_offset;
+  let loc_end = loc_end.pos_cnum - pos_offset;
+  Sedlexing.Latin1.sub_lexeme(buf, loc_start, loc_end - loc_start);
 };
+
 let concat = (~loc, expr, acc) => {
   let concat_fn = {txt: Lident("^"), loc} |> Helper.Exp.ident(~loc);
   Helper.Exp.apply(~loc, concat_fn, [(Nolabel, expr), (Nolabel, acc)]);
@@ -292,17 +287,17 @@ and render_selector = (selector: selector) => {
      ) */
   and render_subclass_selector =
     fun
-    | Id(v) => Printf.sprintf("#%s", v)
-    | Class(v) => Printf.sprintf(".%s", v)
+    | Id(v) => "#" ++ v
+    | Class(v) => "." ++ v
     | ClassVariable(v) => "." ++ render_variable_as_string(v)
-    | Attribute(Attr_value(v)) => Printf.sprintf("[%s]", v)
+    | Attribute(Attr_value(v)) => "[" ++ v ++ "]"
     | Attribute(To_equal({name, kind, value})) => {
         let value =
           switch (value) {
           | Attr_ident(ident) => ident
-          | Attr_string(ident) => {|"|} ++ ident ++ {|"|}
+          | Attr_string(ident) => "\"" ++ ident ++ "\""
           };
-        Printf.sprintf("[%s%s%s]", name, kind, value);
+        "[" ++ name ++ kind ++ value ++ "]";
       }
     | Pseudo_class(psc) => render_pseudo_selector(psc)
   and render_nth =
