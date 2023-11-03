@@ -1,13 +1,8 @@
 /** CSS lexer
   * Reference:
   * https://www.w3.org/TR/css-syntax-3/ */
-<<<<<<< HEAD
 module Types = Css_types;
 module Parser = Css_parser;
-=======
-module Parser = Css_parser;
-module Types = Css_types;
->>>>>>> 73daeb59 (do not call from Lex_buffer)
 module Location = Ppxlib.Location;
 
 /** Signals a lexing error at the provided source location. */
