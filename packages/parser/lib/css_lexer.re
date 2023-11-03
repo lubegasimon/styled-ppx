@@ -297,17 +297,17 @@ let time = [%sedlex.regexp? _s | (_m, _s)];
 
 let frequency = [%sedlex.regexp? (_h, _z) | (_k, _h, _z)];
 
+<<<<<<< HEAD
 // https://drafts.csswg.org/css-syntax-3/#starts-with-a-valid-escape
 let check_if_two_code_points_are_a_valid_escape = lexbuf =>
   switch%sedlex (lexbuf) {
   | ("\\", '\n') => false
-  | ("\\", any) => true
   | _ => false
-  };
-
-// https://drafts.csswg.org/css-syntax-3/#would-start-an-identifier
-let check_if_three_codepoints_would_start_an_identifier = lexbuf => {
-  switch%sedlex (lexbuf) {
+=======
+/* let escape = [%sedlex.regexp? '\\']; */
+let hex_digit = [%sedlex.regexp? digit | 'A' .. 'F' | 'a' .. 'f'] /* let non_ascii_code_point = [%sedlex.regexp? Sub(any, '\000' .. '\128')]; */; // greater than \u0080
+let identifier_start_code_point = [%sedlex.regexp?
+  'a' .. 'z' | 'A' .. 'Z' | non_ascii | '_'
   | ('-', identifier_start_code_point | '-') => true
   // TODO: test the code_points case
   | '-' => check_if_two_code_points_are_a_valid_escape(lexbuf)
@@ -490,7 +490,11 @@ let handle_tokenizer_error = buf => {
   fun
   | Ok(value) => value
   | Error((_, msg)) => {
+<<<<<<< HEAD
       let error: string = Tokens.show_error(msg);
+=======
+      let error: string = Reason_css_lexer.show_error(msg);
+>>>>>>> 73daeb59 (do not call from Lex_buffer)
       raise @@ LexingError((curr_pos, error));
     };
 };
@@ -503,6 +507,10 @@ let latin1 = (~skip=0, ~drop=0, lexbuf) => {
 };
 
 let rec get_next_token = buf => {
+<<<<<<< HEAD
+=======
+  open Parser;
+>>>>>>> 73daeb59 (do not call from Lex_buffer)
   switch%sedlex (buf) {
   | eof => Parser.EOF
   | "/*" => discard_comments(buf)
@@ -569,7 +577,10 @@ let rec get_next_token = buf => {
   };
 }
 and get_dimension = (n, buf) => {
+<<<<<<< HEAD
   open Sedlexing.Utf8;
+=======
+>>>>>>> 73daeb59 (do not call from Lex_buffer)
   switch%sedlex (buf) {
   | length => FLOAT_DIMENSION((n, lexeme(buf)))
   | angle => FLOAT_DIMENSION((n, lexeme(buf)))
