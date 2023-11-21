@@ -297,22 +297,10 @@ let time = [%sedlex.regexp? _s | (_m, _s)];
 
 let frequency = [%sedlex.regexp? (_h, _z) | (_k, _h, _z)];
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> c9307c24 (unify-lexers)
 // https://drafts.csswg.org/css-syntax-3/#starts-with-a-valid-escape
 let check_if_two_code_points_are_a_valid_escape = lexbuf =>
   switch%sedlex (lexbuf) {
   | ("\\", '\n') => false
-<<<<<<< HEAD
-  | _ => false
-=======
-/* let escape = [%sedlex.regexp? '\\']; */
-let hex_digit = [%sedlex.regexp? digit | 'A' .. 'F' | 'a' .. 'f'] /* let non_ascii_code_point = [%sedlex.regexp? Sub(any, '\000' .. '\128')]; */; // greater than \u0080
-let identifier_start_code_point = [%sedlex.regexp?
-  'a' .. 'z' | 'A' .. 'Z' | non_ascii | '_'
-=======
   | ("\\", any) => true
   | _ => false
   };
@@ -320,7 +308,6 @@ let identifier_start_code_point = [%sedlex.regexp?
 // https://drafts.csswg.org/css-syntax-3/#would-start-an-identifier
 let check_if_three_codepoints_would_start_an_identifier = lexbuf => {
   switch%sedlex (lexbuf) {
->>>>>>> c9307c24 (unify-lexers)
   | ('-', identifier_start_code_point | '-') => true
   // TODO: test the code_points case
   | '-' => check_if_two_code_points_are_a_valid_escape(lexbuf)
@@ -328,7 +315,6 @@ let check_if_three_codepoints_would_start_an_identifier = lexbuf => {
   | _ => check_if_two_code_points_are_a_valid_escape(lexbuf)
   };
 };
-<<<<<<< HEAD
 
 // https://drafts.csswg.org/css-syntax-3/#starts-with-a-number
 let check_if_three_code_points_would_start_a_number = buf =>
@@ -373,68 +359,6 @@ let consume_whitespace = buf =>
   };
 
 let lexeme = Sedlexing.Utf8.lexeme;
-=======
-
-// https://drafts.csswg.org/css-syntax-3/#starts-with-a-number
-let check_if_three_code_points_would_start_a_number = buf =>
-  switch%sedlex (buf) {
-  | ("+" | "-", digit)
-  | ("+" | "-", ".", digit) => true
-  | ('.', digit) => true
-  | _ => false
-  };
-
-let check = (f, buf) => {
-  // TODO: why this second int?
-  Sedlexing.mark(buf, 0);
-  let value = f(buf);
-  let _ = Sedlexing.backtrack(buf);
-  value;
-};
-
-let string_of_uchar = char => {
-  let buf = Buffer.create(0);
-  Buffer.add_utf_8_uchar(buf, char);
-  Buffer.contents(buf);
-};
-
-let uchar_of_int = n => Uchar.of_int(n) |> string_of_uchar;
-
-let is_surrogate = char_code => char_code >= 0xD800 && char_code <= 0xDFFF;
-
-let unreachable = () =>
-  failwith(
-    "This match case is unreachable. sedlex needs a last case as wildcard _. If this error appears, means that there's a bug in the lexer.",
-  );
-
-let (~:) = f => f();
-
-module Tokenizer = {
-  let consume_whitespace = buf =>
-    switch%sedlex (buf) {
-    | Star(whitespace) => Parser.WS
-    | _ => Parser.WS
-    };
-
-  let lexeme = Sedlexing.Utf8.lexeme;
-
-  // https://drafts.csswg.org/css-syntax-3/#consume-an-escaped-code-point
-  let consume_escaped = buf => {
-    switch%sedlex (buf) {
-    // TODO: spec typo? No more than 5?
-    | Rep(hex_digit, 1 .. 6) =>
-      let hex_string = "0x" ++ lexeme(buf);
-      let char_code = int_of_string(hex_string);
-      let char = uchar_of_int(char_code);
-      let _ = consume_whitespace(buf);
-      char_code == 0 || is_surrogate(char_code)
-        ? Error((Uchar.rep, Tokens.Invalid_code_point)) : Ok(char);
-    | eof => Error((Uchar.rep, Tokens.Eof))
-    | any => Ok(lexeme(buf))
-    | _ => ~:unreachable
-    };
-  };
->>>>>>> c9307c24 (unify-lexers)
 
 // https://drafts.csswg.org/css-syntax-3/#consume-an-escaped-code-point
 let consume_escaped = buf => {
@@ -460,17 +384,10 @@ let consume_identifier = buf => {
     switch%sedlex (buf) {
     | identifier_code_point => read(acc ++ lexeme(buf))
     | escape =>
-<<<<<<< HEAD
       // TODO: spec, what should happen when fails?
       let.ok char = consume_escaped(buf);
       read(acc ++ char);
     | _ => Ok(acc)
-=======
-      let _ = consume_escaped(buf);
-      consume_remnants_bad_url(buf);
-    | any => consume_remnants_bad_url(buf)
-    | _ => ~:unreachable
->>>>>>> c9307c24 (unify-lexers)
     };
   read(lexeme(buf));
 };
@@ -525,25 +442,6 @@ module Tokenizer = {
     read(lexeme(buf));
   };
 
-<<<<<<< HEAD
-=======
-  let (let.ok) = Result.bind;
-
-  // https://drafts.csswg.org/css-syntax-3/#consume-name
-  let consume_identifier = buf => {
-    let rec read = acc =>
-      switch%sedlex (buf) {
-      | identifier_code_point => read(acc ++ lexeme(buf))
-      | escape =>
-        // TODO: spec, what should happen when fails?
-        let.ok char = consume_escaped(buf);
-        read(acc ++ char);
-      | _ => Ok(acc)
-      };
-    read(lexeme(buf));
-  };
-
->>>>>>> c9307c24 (unify-lexers)
   let handle_consume_identifier =
     fun
     | Error((_, error)) => Error((Parser.BAD_IDENT, error))
@@ -592,15 +490,7 @@ let handle_tokenizer_error = buf => {
   fun
   | Ok(value) => value
   | Error((_, msg)) => {
-<<<<<<< HEAD
-<<<<<<< HEAD
       let error: string = Tokens.show_error(msg);
-=======
-      let error: string = Reason_css_lexer.show_error(msg);
->>>>>>> 73daeb59 (do not call from Lex_buffer)
-=======
-      let error: string = Tokens.show_error(msg);
->>>>>>> c9307c24 (unify-lexers)
       raise @@ LexingError((curr_pos, error));
     };
 };
@@ -613,13 +503,6 @@ let latin1 = (~skip=0, ~drop=0, lexbuf) => {
 };
 
 let rec get_next_token = buf => {
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-  open Parser;
->>>>>>> 73daeb59 (do not call from Lex_buffer)
-=======
->>>>>>> c9307c24 (unify-lexers)
   switch%sedlex (buf) {
   | eof => Parser.EOF
   | "/*" => discard_comments(buf)
@@ -686,14 +569,7 @@ let rec get_next_token = buf => {
   };
 }
 and get_dimension = (n, buf) => {
-<<<<<<< HEAD
-<<<<<<< HEAD
   open Sedlexing.Utf8;
-=======
->>>>>>> 73daeb59 (do not call from Lex_buffer)
-=======
-  open Sedlexing.Utf8;
->>>>>>> c9307c24 (unify-lexers)
   switch%sedlex (buf) {
   | length => FLOAT_DIMENSION((n, lexeme(buf)))
   | angle => FLOAT_DIMENSION((n, lexeme(buf)))
@@ -731,21 +607,11 @@ module Consume = {
   open Sedlexing.Utf8;
   open Tokens;
 
-<<<<<<< HEAD
-=======
-  let escape = [%sedlex.regexp? '\\'];
-
->>>>>>> c9307c24 (unify-lexers)
   let check_if_three_codepoints_would_start_an_identifier =
     check(check_if_three_codepoints_would_start_an_identifier);
   let check_if_three_code_points_would_start_a_number =
     check(check_if_three_code_points_would_start_a_number);
 
-<<<<<<< HEAD
-=======
-  let fffd = uchar_of_int(0xFFFD);
-
->>>>>>> c9307c24 (unify-lexers)
   // TODO: floats in OCaml are compatible with numbers in CSS?
   let convert_string_to_number = str => float_of_string(str);
 
@@ -755,27 +621,6 @@ module Consume = {
     | _ => Tokens.WS
     };
 
-<<<<<<< HEAD
-=======
-  // https://drafts.csswg.org/css-syntax-3/#consume-an-escaped-code-point
-
-  let consume_escaped_ = lexbuf => {
-    switch%sedlex (lexbuf) {
-    // TODO: spec typo? No more than 5?
-    | Rep(hex_digit, 1 .. 6) =>
-      let hex_string = "0x" ++ lexeme(lexbuf);
-      let char_code = int_of_string(hex_string);
-      let char = uchar_of_int(char_code);
-      let _ = consume_whitespace_(lexbuf);
-      char_code == 0 || is_surrogate(char_code)
-        ? Error((fffd, Tokens.Invalid_code_point)) : Ok(char);
-    | eof => Error((fffd, Eof))
-    | any => Ok(lexeme(lexbuf))
-    | _ => ~:unreachable
-    };
-  };
-
->>>>>>> c9307c24 (unify-lexers)
   // TODO: check 5. without the 0
   let consume_number = lexbuf => {
     let append = repr => repr ++ lexeme(lexbuf);
@@ -804,42 +649,6 @@ module Consume = {
     (value, kind); // 7
   };
 
-<<<<<<< HEAD
-=======
-  let (let.ok) = Result.bind;
-
-  // https://drafts.csswg.org/css-syntax-3/#consume-name
-  let consume_identifier_ = lexbuf => {
-    let rec read = acc =>
-      switch%sedlex (lexbuf) {
-      | identifier_code_point => read(acc ++ lexeme(lexbuf))
-      | escape =>
-        // TODO: spec, what should happen when fails?
-        let.ok char = consume_escaped_(lexbuf);
-        read(acc ++ char);
-      | _ => Ok(acc)
-      };
-    read(lexeme(lexbuf));
-  };
-
-  let handle_consume_identifier_ =
-    fun
-    | Error((_, error)) => Error((Tokens.BAD_IDENT, error))
-    | Ok(string) => Ok(string);
-
-  // https://drafts.csswg.org/css-syntax-3/#consume-remnants-of-bad-url
-  let rec consume_remnants_bad_url_ = lexbuf =>
-    switch%sedlex (lexbuf) {
-    | ")"
-    | eof => ()
-    | escape =>
-      let _ = consume_escaped_(lexbuf);
-      consume_remnants_bad_url_(lexbuf);
-    | any => consume_remnants_bad_url_(lexbuf)
-    | _ => ~:unreachable
-    };
-
->>>>>>> c9307c24 (unify-lexers)
   // https://drafts.csswg.org/css-syntax-3/#consume-url-token
   let consume_url_ = lexbuf => {
     let _ = consume_whitespace_(lexbuf);
@@ -850,11 +659,7 @@ module Consume = {
         | ')' => Ok(Tokens.URL(acc))
         | eof => Error((Tokens.URL(acc), Tokens.Eof))
         | _ =>
-<<<<<<< HEAD
           consume_remnants_bad_url(lexbuf);
-=======
-          consume_remnants_bad_url_(lexbuf);
->>>>>>> c9307c24 (unify-lexers)
           Ok(BAD_URL);
         };
       };
@@ -866,19 +671,11 @@ module Consume = {
       | '\''
       | '('
       | non_printable_code_point =>
-<<<<<<< HEAD
         consume_remnants_bad_url(lexbuf);
         // TODO: location on error
         Error((BAD_URL, Tokens.Invalid_code_point));
       | escape =>
         switch (consume_escaped(lexbuf)) {
-=======
-        consume_remnants_bad_url_(lexbuf);
-        // TODO: location on error
-        Error((BAD_URL, Tokens.Invalid_code_point));
-      | escape =>
-        switch (consume_escaped_(lexbuf)) {
->>>>>>> c9307c24 (unify-lexers)
         | Ok(char) => read(acc ++ char)
         | Error((_, error)) => Error((BAD_URL, error))
         }
@@ -901,11 +698,7 @@ module Consume = {
         | '\n' => read(acc)
         | _ =>
           // TODO: is that tail call recursive? I'm not sure
-<<<<<<< HEAD
           let.ok char = consume_escaped(lexbuf);
-=======
-          let.ok char = consume_escaped_(lexbuf);
->>>>>>> c9307c24 (unify-lexers)
           read(acc ++ char);
         };
       switch%sedlex (lexbuf) {
@@ -928,14 +721,11 @@ module Consume = {
     };
   };
 
-<<<<<<< HEAD
   let handle_consume_identifier_ =
     fun
     | Error((_, error)) => Error((Tokens.BAD_IDENT, error))
     | Ok(string) => Ok(string);
 
-=======
->>>>>>> c9307c24 (unify-lexers)
   // https://drafts.csswg.org/css-syntax-3/#consume-ident-like-token
   let consume_ident_like_ = lexbuf => {
     let read_url = string => {
@@ -954,11 +744,7 @@ module Consume = {
     };
 
     // TODO: should it return IDENT() when error?
-<<<<<<< HEAD
     let.ok string = consume_identifier(lexbuf) |> handle_consume_identifier_;
-=======
-    let.ok string = consume_identifier_(lexbuf) |> handle_consume_identifier_;
->>>>>>> c9307c24 (unify-lexers)
 
     switch%sedlex (lexbuf) {
     | '(' =>
@@ -977,11 +763,7 @@ module Consume = {
     if (check_if_three_codepoints_would_start_an_identifier(lexbuf)) {
       // TODO: should it be BAD_IDENT?
       let.ok string =
-<<<<<<< HEAD
         consume_identifier(lexbuf) |> handle_consume_identifier_;
-=======
-        consume_identifier_(lexbuf) |> handle_consume_identifier_;
->>>>>>> c9307c24 (unify-lexers)
       Ok(Tokens.DIMENSION(number, string));
     } else {
       switch%sedlex (lexbuf) {
@@ -1001,19 +783,11 @@ module Consume = {
         | identifier_start_code_point =>
           Sedlexing.rollback(lexbuf);
           let.ok string =
-<<<<<<< HEAD
             consume_identifier(lexbuf) |> handle_consume_identifier_;
           Ok(Tokens.HASH(string, `ID));
         | _ =>
           let.ok string =
             consume_identifier(lexbuf) |> handle_consume_identifier_;
-=======
-            consume_identifier_(lexbuf) |> handle_consume_identifier_;
-          Ok(Tokens.HASH(string, `ID));
-        | _ =>
-          let.ok string =
-            consume_identifier_(lexbuf) |> handle_consume_identifier_;
->>>>>>> c9307c24 (unify-lexers)
           Ok(Tokens.HASH(string, `UNRESTRICTED));
         };
       | _ => Ok(DELIM("#"))
@@ -1064,11 +838,7 @@ module Consume = {
       if (check_if_three_codepoints_would_start_an_identifier(lexbuf)) {
         // TODO: grr BAD_IDENT
         let.ok string =
-<<<<<<< HEAD
           consume_identifier(lexbuf) |> handle_consume_identifier_;
-=======
-          consume_identifier_(lexbuf) |> handle_consume_identifier_;
->>>>>>> c9307c24 (unify-lexers)
         Ok(Tokens.AT_KEYWORD(string));
       } else {
         Ok(DELIM("@"));
