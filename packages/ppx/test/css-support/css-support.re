@@ -791,7 +791,7 @@
 [%css {|text-decoration-line: none|}];
 [%css {|text-decoration-line: underline|}];
 [%css {|text-decoration-line: overline|}];
-[%css {|text-decoration-line: line-through|}];
+[%css {|text-decoration-line: linethrough|}];
 [%css {|text-decoration-line: underline overline|}];
 [%css {|text-decoration-color: white|}];
 [%css {|text-decoration-style: solid|}];

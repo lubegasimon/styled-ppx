@@ -1569,7 +1569,7 @@ and property_text_decoration_color = [%value.rec "<color>"]
 /* and this definition has changed from the origianl, it might be a bug on the spec or our Generator,
    but simplifying to "|" simplifies it and solves the bug */
 and property_text_decoration_line = [%value.rec
-  "'none' | [ 'underline' | 'overline' | 'line-through' | 'blink' ]{1,2}"
+  "'none' | [ 'underline' | 'overline' | 'linethrough' | 'blink' ]{1,2}"
 ]
 and property_text_decoration_skip = [%value.rec
   "'none' | 'objects' || [ 'spaces' | 'leading-spaces' || 'trailing-spaces' ] || 'edges' || 'box-decoration'"
