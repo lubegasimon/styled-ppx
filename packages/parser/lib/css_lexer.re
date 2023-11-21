@@ -430,11 +430,37 @@ module Tokenizer = {
         consume_remnants_bad_url(buf);
         // TODO: location on error
         Error((BAD_URL, Tokens.Invalid_code_point));
+      | escape =>
         switch (consume_escaped(buf)) {
         | Ok(char) => read(acc ++ char)
         | Error((_, error)) => Error((BAD_URL, error))
         }
+      | any => read(acc ++ lexeme(buf))
+      | _ => ~:unreachable
+      };
+    };
+    read(lexeme(buf));
+  };
 
+  let handle_consume_identifier =
+    fun
+    | Error((_, error)) => Error((Parser.BAD_IDENT, error))
+    | Ok(string) => Ok(string);
+
+  let consume_function = string => {
+    switch (string) {
+    | "nth-last-child"
+    | "nth-child"
+    | "nth-of-type"
+    | "nth-last-of-type" => Parser.NTH_FUNCTION(string)
+    | _ => Parser.FUNCTION(string)
+    };
+  };
+
+  // https://drafts.csswg.org/css-syntax-3/#consume-ident-like-token
+  let consume_ident_like = buf => {
+    let read_url = string => {
+      // TODO: the whitespace trickery here?
       let _ = consume_whitespace(buf);
       let is_function =
         check(_ =>
@@ -477,6 +503,10 @@ let latin1 = (~skip=0, ~drop=0, lexbuf) => {
 };
 
 let rec get_next_token = buf => {
+  switch%sedlex (buf) {
+  | eof => Parser.EOF
+  | "/*" => discard_comments(buf)
+  | '.' => DOT
   | ';' => SEMI_COLON
   | '}' =>
     skip_whitespace.contents = false;
@@ -579,9 +609,9 @@ module Consume = {
 
   let check_if_three_codepoints_would_start_an_identifier =
     check(check_if_three_codepoints_would_start_an_identifier);
-  let fffd = uchar_of_int(0xFFFD);
+  let check_if_three_code_points_would_start_a_number =
+    check(check_if_three_code_points_would_start_a_number);
 
->>>>>>> c9307c24 (unify-lexers)
   // TODO: floats in OCaml are compatible with numbers in CSS?
   let convert_string_to_number = str => float_of_string(str);
 
@@ -715,6 +745,9 @@ module Consume = {
 
     // TODO: should it return IDENT() when error?
     let.ok string = consume_identifier(lexbuf) |> handle_consume_identifier_;
+
+    switch%sedlex (lexbuf) {
+    | '(' =>
       switch (string) {
       | "url" => read_url(string)
       | _ => Ok(FUNCTION(string))

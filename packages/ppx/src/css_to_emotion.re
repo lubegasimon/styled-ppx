@@ -5,8 +5,6 @@ module Builder = Ppxlib.Ast_builder.Default;
 
 exception Empty_buffer(string);
 
-exception Empty_buffer(string);
-
 let reduce_result = (~empty, fn, list) => {
   let rec sequence_result =
     fun
