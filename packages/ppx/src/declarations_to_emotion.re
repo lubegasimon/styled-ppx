@@ -249,10 +249,13 @@ let variant_to_expression = (~loc) =>
   | `Visible => id([%expr `visible])
   | `Wavy => id([%expr `wavy])
   | `Wrap => id([%expr `wrap])
-  | `FitContent => raise(Unsupported_feature)
-  | `Justify_all => raise(Unsupported_feature)
-  | `Match_parent => raise(Unsupported_feature)
+  | `Loose => id([%expr `loose])
+  | `Strict => id([%expr `strict])
+  | `Manual => id([%expr `manual])
+  | `Match_parent => id([%expr `matchParent])
+  | `Justify_all => id([%expr `justifyAll])
   | `Wrap_reverse => id([%expr `wrapReverse])
+  | `FitContent => raise(Unsupported_feature)
   | `Full_width => raise(Unsupported_feature)
   | `Full_size_kana => raise(Unsupported_feature);
 
@@ -1937,7 +1940,6 @@ let white_space =
 let tab_size = unsupportedProperty(Parser.property_tab_size);
 let word_break =
   variants(Parser.property_word_break, (~loc) => [%expr CssJs.wordBreak]);
-let line_break = unsupportedProperty(Parser.property_line_break);
 let render_line_height = (~loc) =>
   fun
   | `Extended_length(ext) => render_extended_length(~loc, ext)
@@ -1957,7 +1959,6 @@ let line_height_step =
     (~loc) => [%expr CssJs.lineHeightStep],
     render_extended_length,
   );
-let hyphens = unsupportedProperty(Parser.property_hyphens);
 let overflow_wrap =
   variants(Parser.property_overflow_wrap, (~loc) =>
     [%expr CssJs.overflowWrap]
@@ -1966,7 +1967,6 @@ let word_wrap =
   variants(Parser.property_word_wrap, (~loc) => [%expr CssJs.wordWrap]);
 let text_align =
   variants(Parser.property_text_align, (~loc) => [%expr CssJs.textAlign]);
-// let text_align_all = unsupportedProperty(Parser.property_text_align_all);
 let text_align_last = unsupportedProperty(Parser.property_text_align_last);
 let text_justify = unsupportedProperty(Parser.property_text_justify);
 let word_spacing =
@@ -3349,6 +3349,12 @@ let strokeOpacity =
     (~loc) => [%expr CssJs.SVG.strokeOpacity],
     render_alpha_value,
   );
+
+let line_break =
+  variants(Parser.property_line_break, (~loc) => [%expr CssJs.lineBreak]);
+
+let hyphens =
+  variants(Parser.property_hyphens, (~loc) => [%expr CssJs.hyphens]);
 
 let found = ({ast_of_string, string_to_expr, _}) => {
   /* TODO: Why we have 'check_value' when we don't use it? */

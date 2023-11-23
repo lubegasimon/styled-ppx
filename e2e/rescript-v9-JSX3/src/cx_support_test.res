@@ -11,6 +11,9 @@ let testData = list{
   (%cx("text-transform: inherit"), CssJs.style([CssJs.textTransform(#inherit_)])),
   (%cx("text-transform: revert"), CssJs.style([CssJs.textTransform(#revert)])),
   (%cx("text-transform: revert-layer"), CssJs.style([CssJs.textTransform(#revert_layer)])),
+  (%cx("line-break: auto"), CssJs.style([CssJs.lineBreak(#auto)])),
+  (%cx("hyphens: none"), CssJs.style([CssJs.hyphens(#none)])),
+  (%cx("text-align: match-parent"), CssJs.style([CssJs.textAlign(#matchParent)]))
 }
 
 describe("cx", () => {

@@ -1269,19 +1269,25 @@ end
 module TextAlign = struct
   type nonrec t =
     [ `start
+    | `end_
     | `left
     | `right
     | `center
     | `justify
+    | `matchParent
+    | `justifyAll
     ]
 
   let toString x =
     match x with
     | `start -> {js|start|js}
+    | `end_ -> {js|end|js}
     | `left -> {js|left|js}
     | `right -> {js|right|js}
     | `center -> {js|center|js}
     | `justify -> {js|justify|js}
+    | `matchParent -> {js|match-parent|js}
+    | `justifyAll -> {js|justify-all|js}
 end
 
 module WordBreak = struct
@@ -2362,4 +2368,36 @@ module AlphaValue = struct
     match x with
     | `num x -> Std.Int.toString x
     | `percent x -> Std.Float.toString x ^ {js|%|js}
+end
+
+module LineBreak = struct
+  type nonrec t =
+    [ `auto
+    | `loose
+    | `normal
+    | `strict
+    | `anywhere
+    ]
+
+  let toString x =
+    match x with
+    | `auto -> {js|auto|js}
+    | `loose -> {js|loose|js}
+    | `normal -> {js|normal|js}
+    | `strict -> {js|strict|js}
+    | `anywhere -> {js|anywhere|js}
+end
+
+module Hyphens = struct
+  type nonrec t =
+    [ `none
+    | `manual
+    | `auto
+    ]
+
+  let toString x =
+    match x with
+    | `none -> {js|none|js}
+    | `manual -> {js|manual|js}
+    | `auto -> {js|auto|js}
 end

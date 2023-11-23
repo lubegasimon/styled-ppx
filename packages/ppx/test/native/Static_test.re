@@ -432,6 +432,21 @@ let properties_static_css_tests = [
     [%expr CssJs.textAlign(`left)],
   ),
   (
+    [%css "text-align: end"],
+    [%expr [%css "text-align: end"]],
+    [%expr CssJs.textAlign(`end_)],
+  ),
+  (
+    [%css "text-align: match-parent"],
+    [%expr [%css "text-align: match-parent"]],
+    [%expr CssJs.textAlign(`matchParent)],
+  ),
+  (
+    [%css "text-align: justify-all"],
+    [%expr [%css "text-align: justify-all"]],
+    [%expr CssJs.textAlign(`justifyAll)],
+  ),
+  (
     [%css "word-spacing: normal"],
     [%expr [%css "word-spacing: normal"]],
     [%expr CssJs.wordSpacing(`normal)],
@@ -569,6 +584,16 @@ let properties_static_css_tests = [
     [%css "justify-content: center"],
     [%expr [%css "justify-content: center"]],
     [%expr CssJs.justifyContent(`center)],
+  ),
+  (
+    [%css "line-break: auto"],
+    [%expr [%css "line-break: auto"]],
+    [%expr CssJs.lineBreak(`auto)],
+  ),
+  (
+    [%css "hyphens: none"],
+    [%expr [%css "hyphens: none"]],
+    [%expr CssJs.hyphens(`none)],
   ),
   // unsupported
   /* (
