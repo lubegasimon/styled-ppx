@@ -6,6 +6,9 @@ let testData = list{
     %cx("@media (min-width: 30em) { color: brown; }"),
     CssJs.style([CssJs.media("(min-width: 30em)", [CssJs.color(CssJs.brown)])]),
   ),
+  (%cx("line-break: auto"), CssJs.style([CssJs.lineBreak(#auto)])),
+  (%cx("hyphens: none"), CssJs.style([CssJs.hyphens(#none)])),
+  (%cx("text-align: match-parent"), CssJs.style([CssJs.textAlign(#matchParent)]))
 }
 
 describe("cx", () => {

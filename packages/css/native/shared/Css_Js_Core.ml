@@ -2125,3 +2125,19 @@ end
 [@@ns.doc "\n * SVG\n "]
 
 let touchAction x = D ({js|touch-action|js}, x |. TouchAction.toString)
+
+let lineBreak x =
+  D
+    ( {js|lineBreak|js},
+      match x with
+      | #LineBreak.t as lb -> LineBreak.toString lb
+      | #Var.t as var -> Var.toString var
+      | #Cascading.t as c -> Cascading.toString c )
+
+let hyphens x =
+  D
+    ( {js|hyphens|js},
+      match x with
+      | #Hyphens.t as h -> Hyphens.toString h
+      | #Var.t as var -> Var.toString var
+      | #Cascading.t as c -> Cascading.toString c )
