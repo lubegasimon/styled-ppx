@@ -255,6 +255,8 @@ let variant_to_expression = (~loc) =>
   | `Match_parent => id([%expr `matchParent])
   | `Justify_all => id([%expr `justifyAll])
   | `Wrap_reverse => id([%expr `wrapReverse])
+  | `Inter_word => id([%expr `interWord])
+  | `Inter_character => id([%expr `InterCharacter])
   | `FitContent => raise(Unsupported_feature)
   | `Full_width => raise(Unsupported_feature)
   | `Full_size_kana => raise(Unsupported_feature);
@@ -1971,7 +1973,8 @@ let text_align_last =
   variants(Parser.property_text_align_last, (~loc) =>
     [%expr CssJs.textAlignLast]
   );
-let text_justify = unsupportedProperty(Parser.property_text_justify);
+let text_justify =
+  variants(Parser.property_text_justify, (~loc) => [%expr CssJs.textJustify]);
 let word_spacing =
   monomorphic(
     Parser.property_word_spacing,
