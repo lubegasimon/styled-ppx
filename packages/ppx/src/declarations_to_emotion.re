@@ -257,6 +257,8 @@ let variant_to_expression = (~loc) =>
   | `Wrap_reverse => id([%expr `wrapReverse])
   | `Inter_word => id([%expr `interWord])
   | `Inter_character => id([%expr `InterCharacter])
+  | `Sub => id([%expr `sub])
+  | `Super => id([%expr `super])
   | `FitContent => raise(Unsupported_feature)
   | `Full_width => raise(Unsupported_feature)
   | `Full_size_kana => raise(Unsupported_feature);
@@ -2134,7 +2136,9 @@ let font_kerning =
 let font_variant_ligatures =
   unsupportedProperty(Parser.property_font_variant_ligatures);
 let font_variant_position =
-  unsupportedProperty(Parser.property_font_variant_position);
+  variants(Parser.property_font_variant_position, (~loc) =>
+    [%expr CssJs.fontVariantPosition]
+  );
 let font_variant_caps =
   unsupportedProperty(Parser.property_font_variant_caps);
 let font_variant_numeric =
