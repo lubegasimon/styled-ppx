@@ -640,6 +640,11 @@ let properties_static_css_tests = [
     [%expr [%css "font-synthesis-position: auto"]],
     [%expr CssJs.fontSynthesisPosition(`auto)],
   ),
+  (
+    [%css "font-kerning: normal"],
+    [%expr [%css "font-kerning: normal"]],
+    [%expr CssJs.fontKerning(`normal)],
+  ),
   // unsupported
   /* (
        [%css "-moz-text-blink: blink"],
