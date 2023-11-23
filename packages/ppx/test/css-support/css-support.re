@@ -709,13 +709,6 @@
 [%css {|text-align: justify|}];
 [%css {|text-align: match-parent|}];
 [%css {|text-align: justify-all|}];
-/* [%css {|text-align-all: start|}]; */
-/* [%css {|text-align-all: end|}]; */
-/* [%css {|text-align-all: left|}]; */
-/* [%css {|text-align-all: right|}]; */
-/* [%css {|text-align-all: center|}]; */
-/* [%css {|text-align-all: justify|}]; */
-/* [%css {|text-align-all: match-parent|}]; */
 [%css {|text-align-last: auto|}];
 [%css {|text-align-last: start|}];
 [%css {|text-align-last: end|}];
