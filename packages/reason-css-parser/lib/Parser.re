@@ -1583,6 +1583,8 @@ and property_text_decoration_skip = [%value.rec
 ]
 and property_text_decoration_skip_ink = [%value.rec "'auto' | 'all' | 'none'"]
 and property_text_decoration_skip_box = [%value.rec "'none' | 'all'"]
+and property_text_decoration_skip_inset = [%value.rec "'none' | 'auto'"]
+
 and property_text_decoration_style = [%value.rec
   "'solid' | 'double' | 'dotted' | 'dashed' | 'wavy'"
 ]
@@ -3128,6 +3130,10 @@ let check_map =
       (
         "property-text-decoration-skip-box",
         check(property_text_decoration_skip_box),
+      ),
+      (
+        "property-text-decoration-skip-inset",
+        check(property_text_decoration_skip_inset),
       ),
       (
         "property-text-decoration-style",
