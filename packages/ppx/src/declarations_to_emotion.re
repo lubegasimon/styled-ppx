@@ -1963,6 +1963,10 @@ let word_wrap =
   variants(Parser.property_word_wrap, (~loc) => [%expr CssJs.wordWrap]);
 let text_align =
   variants(Parser.property_text_align, (~loc) => [%expr CssJs.textAlign]);
+let text_align_all =
+  variants(Parser.property_text_align_all, (~loc) =>
+    [%expr CssJs.textAlignAll]
+  );
 let text_align_last =
   variants(Parser.property_text_align_last, (~loc) =>
     [%expr CssJs.textAlignLast]
@@ -3768,6 +3772,7 @@ let properties = [
   ("tab-size", found(tab_size)),
   ("text-align-last", found(text_align_last)),
   ("text-align", found(text_align)),
+  ("text-align-all", found(text_align_all)),
   /* ("text-autospace", found(text_autospace)), */
   /* ("text-blink", found(text_blink)), */
   ("text-combine-upright", found(text_combine_upright)),
