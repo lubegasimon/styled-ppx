@@ -800,6 +800,49 @@ let properties_static_css_tests = [
     [%expr [%css "transform-box: view-box"]],
     [%expr CssJs.transformBox(`viewBox)],
   ),
+  (
+    [%css "tab-size: 0"],
+    [%expr [%css "tab-size: 0"]],
+    [%expr CssJs.tabSize(`zero)],
+  ),
+  (
+    [%css "tab-size: 4"],
+    [%expr [%css "tab-size: 4"]],
+    [%expr CssJs.tabSize(`num(4))],
+  ),
+  (
+    [%css "tab-size: 10px"],
+    [%expr [%css "tab-size: 10px"]],
+    [%expr CssJs.tabSize(`pxFloat(10.))],
+  ),
+  (
+    [%css "tab-size: calc(10px + 10px)"],
+    [%expr [%css "tab-size: calc(10px + 10px)"]],
+    [%expr CssJs.tabSize(`calc(`add((`pxFloat(10.), `pxFloat(10.)))))],
+  ),
+  // FIXME: The comment test below should run
+  // (
+  //   [%css "tab-size: calc(10 + 10)"],
+  //   [%expr [%css "tab-size: calc(10 + 10)"]],
+  //   [%expr CssJs.tabSize(`calc(`add(`num(10), `num(10))))],
+  // ),
+  (
+    [%css "tab-size: calc(10px + 10pt)"],
+    [%expr [%css "tab-size: calc(10px + 10pt)"]],
+    [%expr CssJs.tabSize(`calc(`add((`pxFloat(10.), `pt(10)))))],
+  ),
+  // FIXME: The comment test below should run
+  // (
+  //   [%css "tab-size: calc(10px + 10pt)"],
+  //   [%expr [%css "tab-size: calc(10px + 10pt)"]],
+  //   [%expr CssJs.tabSize(`calc(`add(`px(10), `pt(10))))],
+  // ),
+  // FIXME: The comment test below should run
+  // (
+  //   [%css "tab-size: calc(10 - 2)"],
+  //   [%expr [%css "tab-size: calc(10 - 8)"]],
+  //   [%expr CssJs.tabSize(`calc(`sub(`num(10), `num(8))))],
+  // ),
   // unsupported
   /* (
        [%css "-moz-text-blink: blink"],

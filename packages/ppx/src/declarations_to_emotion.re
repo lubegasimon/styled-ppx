@@ -1939,7 +1939,17 @@ let text_transform =
   );
 let white_space =
   variants(Parser.property_white_space, (~loc) => [%expr CssJs.whiteSpace]);
-let tab_size = unsupportedProperty(Parser.property_tab_size);
+let render_tab_size = (~loc) =>
+  fun
+  | `Extended_length(ext) => render_extended_length(~loc, ext)
+  | `Integer(num) => [%expr `num([%e render_integer(~loc, num)])];
+
+let tab_size =
+  monomorphic(
+    Parser.property_tab_size,
+    (~loc) => [%expr CssJs.tabSize],
+    render_tab_size,
+  );
 let word_break =
   variants(Parser.property_word_break, (~loc) => [%expr CssJs.wordBreak]);
 let render_line_height = (~loc) =>

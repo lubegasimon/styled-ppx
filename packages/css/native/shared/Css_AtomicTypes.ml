@@ -89,6 +89,7 @@ module Length = struct
     | `pc of float
     | `pt of int
     | `zero
+    | `num of int
     | `calc of [ `add of t * t | `sub of t * t | `mult of t * t | `one of t ]
     | `percent of float
     ]
@@ -109,6 +110,7 @@ module Length = struct
   let pc x = `pc x
   let pt x = `pt x
   let zero = `zero
+  let num x = `num x
 
   let rec toString x =
     match x with
@@ -128,6 +130,7 @@ module Length = struct
     | `pc x -> Std.Float.toString x ^ {js|pc|js}
     | `pt x -> Std.Int.toString x ^ {js|pt|js}
     | `zero -> {js|0|js}
+    | `num x -> Std.Int.toString x
     | `calc (`one a) -> ({js|calc(|js} ^ toString a) ^ {js|)|js}
     | `calc (`add (a, b)) ->
       ((({js|calc(|js} ^ toString a) ^ {js| + |js}) ^ toString b) ^ {js|)|js}
