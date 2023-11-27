@@ -2440,20 +2440,26 @@ let transform_origin =
         [
           [%expr
             CssJs.transformOrigin(
-              [%e render_origin(~loc, x)],
+              ~x=[%e render_origin(~loc, x)],
               [%e render_origin(~loc, y)],
             )
           ],
         ];
       }
-    | `Center => [[%expr CssJs.transformOrigin(`Center, `Center)]]
-    | `Left => [[%expr CssJs.transformOrigin(`Left, `Center)]]
-    | `Right => [[%expr CssJs.transformOrigin(`Right, `Center)]]
-    | `Bottom => [[%expr CssJs.transformOrigin(`Bottom, `Center)]]
-    | `Top => [[%expr CssJs.transformOrigin(`Top, `Center)]]
-    | `Static(_, Some(_))
-    | `Extended_length(_)
-    | `Extended_percentage(_) => raise(Unsupported_feature)
+    | `Center => [[%expr CssJs.transformOrigin(~x=`Center, `Center)]]
+    | `Left => [[%expr CssJs.transformOrigin(~x=`Left, `Center)]]
+    | `Right => [[%expr CssJs.transformOrigin(~x=`Right, `Center)]]
+    | `Bottom => [[%expr CssJs.transformOrigin(~x=`Bottom, `Center)]]
+    | `Top => [[%expr CssJs.transformOrigin(~x=`Top, `Center)]]
+    | `Extended_length(l) => [
+        [%expr CssJs.transformOrigin([%e render_extended_length(~loc, l)])],
+      ]
+    | `Extended_percentage(p) => [
+        [%expr
+          CssJs.transformOrigin([%e render_extended_percentage(~loc, p)])
+        ],
+      ]
+    | `Static(_, Some(_)) => raise(Unsupported_feature)
   );
 let transform_box = unsupportedProperty(Parser.property_transform_box);
 let translate =

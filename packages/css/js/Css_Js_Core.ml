@@ -1024,8 +1024,23 @@ let transforms x =
     ( {js|transform|js},
       x |. Std.Array.map Transform.toString |. Std.Array.joinWith {js| |js} )
 
-let transformOrigin x y =
-  D ({js|transformOrigin|js}, Length.toString x ^ {js| |js} ^ Length.toString y)
+let transformOrigin ?x y =
+  D
+    ( {js|transformOrigin|js},
+      match x with
+      | Some x ->
+        (match x, y with
+        | (#Length.t as x), (#Length.t as y) ->
+          Length.toString x ^ {js| |js} ^ Length.toString y
+        | (#MaskPosition.X.t as x), (#Length.t as y) ->
+          MaskPosition.X.toString x ^ {js| |js} ^ Length.toString y
+        | (#MaskPosition.t as x), (#MaskPosition.t as y) ->
+          MaskPosition.toString x ^ {js| |js} ^ MaskPosition.toString y
+        | _ -> {js| Wrong syntax!! |js})
+      | None ->
+        (match y with
+        | #Length.t as y -> Length.toString y
+        | #MaskPosition.t as y -> MaskPosition.toString y) )
 
 let transformOrigin3d x y z =
   D

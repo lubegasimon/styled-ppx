@@ -79,10 +79,10 @@ module Make (CssImpl : Css_Core.CssImplementationIntf) :
 
   let framesToDict frames =
     Std.Array.reduceU frames (Js.Dict.empty ()) (fun [@u] dict (stop, rules) ->
-      let _ =
-        Js.Dict.set dict (Std.Int.toString stop ^ {js|%|js}) (toJson rules)
-      in
-      dict)
+        let _ =
+          Js.Dict.set dict (Std.Int.toString stop ^ {js|%|js}) (toJson rules)
+        in
+        dict)
 
   let keyframes =
    fun [@u] frames -> (CssImpl.makeKeyframes (framesToDict frames) [@u])
@@ -94,7 +94,7 @@ end
 
 let join strings separator =
   Std.Array.reduceWithIndexU strings {js||js} (fun [@u] acc item index ->
-    if index = 0 then item else acc ^ separator ^ item)
+      if index = 0 then item else acc ^ separator ^ item)
 
 module Converter = struct
   let string_of_time t = Std.Int.toString t ^ {js|ms|js}
@@ -1044,8 +1044,23 @@ let transforms x =
     ( {js|transform|js},
       x |. Std.Array.map Transform.toString |. Std.Array.joinWith {js| |js} )
 
-let transformOrigin x y =
-  D ({js|transform-origin|js}, Length.toString x ^ {js| |js} ^ Length.toString y)
+let transformOrigin ?x y =
+  D
+    ( {js|transformOrigin|js},
+      match x with
+      | Some x ->
+        (match x, y with
+        | (#Length.t as x), (#Length.t as y) ->
+          Length.toString x ^ {js| |js} ^ Length.toString y
+        | (#MaskPosition.X.t as x), (#Length.t as y) ->
+          MaskPosition.X.toString x ^ {js| |js} ^ Length.toString y
+        | (#MaskPosition.t as x), (#MaskPosition.t as y) ->
+          MaskPosition.toString x ^ {js| |js} ^ MaskPosition.toString y
+        | _ -> {js| Wrong syntax!! |js})
+      | None ->
+        (match y with
+        | #Length.t as y -> Length.toString y
+        | #MaskPosition.t as y -> MaskPosition.toString y) )
 
 let transformOrigin3d x y z =
   D
@@ -1866,11 +1881,11 @@ let backgrounds x =
     ( {js|background|js},
       x
       |. Std.Array.map (fun item ->
-           match item with
-           | #Color.t as c -> Color.toString c
-           | #Url.t as u -> Url.toString u
-           | #Gradient.t as g -> Gradient.toString g
-           | `none -> {js|none|js})
+             match item with
+             | #Color.t as c -> Color.toString c
+             | #Url.t as u -> Url.toString u
+             | #Gradient.t as g -> Gradient.toString g
+             | `none -> {js|none|js})
       |. Std.Array.joinWith {js|, |js} )
 
 let backgroundSize x =
@@ -1890,38 +1905,38 @@ let fontFace ~fontFamily ~src ?fontStyle ?fontWeight ?fontDisplay ?sizeAdjust ()
    let src =
      src
      |. Std.Array.map (fun x ->
-          match x with
-          | `localUrl value ->
-            ((({js|local("|js} [@res.template]) ^ value) [@res.template]
-            ^ ({js|")|js} [@res.template]))
-            [@res.template]
-          | `url value ->
-            ((({js|url("|js} [@res.template]) ^ value) [@res.template]
-            ^ ({js|")|js} [@res.template]))
-            [@res.template])
+            match x with
+            | `localUrl value ->
+              ((({js|local("|js} [@res.template]) ^ value) [@res.template]
+              ^ ({js|")|js} [@res.template]))
+              [@res.template]
+            | `url value ->
+              ((({js|url("|js} [@res.template]) ^ value) [@res.template]
+              ^ ({js|")|js} [@res.template]))
+              [@res.template])
      |. Std.Array.joinWith {js|, |js}
    in
    let fontStyle =
      Belt.Option.mapWithDefault fontStyle {js||js} (fun s ->
-       ({js|font-style: |js} ^ s) ^ {js|;|js})
+         ({js|font-style: |js} ^ s) ^ {js|;|js})
    in
    let fontWeight =
      Belt.Option.mapWithDefault fontWeight {js||js} (fun w ->
-       ({js|font-weight: |js}
-       ^
-       match w with
-       | #FontWeight.t as f -> FontWeight.toString f
-       | #Var.t as va -> Var.toString va
-       | #Cascading.t as c -> Cascading.toString c)
-       ^ {js|;|js})
+         ({js|font-weight: |js}
+         ^
+         match w with
+         | #FontWeight.t as f -> FontWeight.toString f
+         | #Var.t as va -> Var.toString va
+         | #Cascading.t as c -> Cascading.toString c)
+         ^ {js|;|js})
    in
    let fontDisplay =
      Belt.Option.mapWithDefault fontDisplay {js||js} (fun f ->
-       ({js|font-display: |js} ^ FontDisplay.toString f) ^ {js|;|js})
+         ({js|font-display: |js} ^ FontDisplay.toString f) ^ {js|;|js})
    in
    let sizeAdjust =
      Belt.Option.mapWithDefault sizeAdjust {js||js} (fun s ->
-       ({js|size-adjust: |js} ^ Percentage.toString s) ^ {js|;|js})
+         ({js|size-adjust: |js} ^ Percentage.toString s) ^ {js|;|js})
    in
    ((((((((((((({js|@font-face {
      font-family: |js} [@res.template])
