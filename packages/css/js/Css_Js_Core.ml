@@ -1024,23 +1024,51 @@ let transforms x =
     ( {js|transform|js},
       x |. Std.Array.map Transform.toString |. Std.Array.joinWith {js| |js} )
 
-let transformOrigin ?x y =
+let transformOrigin ?x ?y z =
   D
     ( {js|transformOrigin|js},
-      match x with
-      | Some x ->
-        (match x, y with
-        | (#Length.t as x), (#Length.t as y) ->
-          Length.toString x ^ {js| |js} ^ Length.toString y
-        | (#MaskPosition.X.t as x), (#Length.t as y) ->
-          MaskPosition.X.toString x ^ {js| |js} ^ Length.toString y
-        | (#MaskPosition.t as x), (#MaskPosition.t as y) ->
-          MaskPosition.toString x ^ {js| |js} ^ MaskPosition.toString y
+      match x, y with
+      | Some x, Some y ->
+        (match x, y, z with
+        | (#Length.t as x), (#Length.t as y), (#Length.t as z) ->
+          Length.toString x
+          ^ {js| |js}
+          ^ Length.toString y
+          ^ {js| |js}
+          ^ Length.toString z
+        | (#MaskPosition.t as x), (#MaskPosition.t as y), (#Length.t as z) ->
+          MaskPosition.toString x
+          ^ {js| |js}
+          ^ MaskPosition.toString y
+          ^ {js| |js}
+          ^ Length.toString z
         | _ -> {js| Wrong syntax!! |js})
-      | None ->
-        (match y with
-        | #Length.t as y -> Length.toString y
-        | #MaskPosition.t as y -> MaskPosition.toString y) )
+      | Some x, None ->
+        (match x, z with
+        | (#Length.t as x), (#Length.t as z) ->
+          Length.toString x ^ {js| |js} ^ Length.toString z
+        | (#MaskPosition.X.t as x), (#Length.t as z) ->
+          MaskPosition.X.toString x ^ {js| |js} ^ Length.toString z
+        (* | (#MaskPosition.Y.t as x), (#Length.t as y) ->
+           {js| |js} *)
+        | (#MaskPosition.t as x), (#MaskPosition.t as z) ->
+          MaskPosition.toString x ^ {js| |js} ^ MaskPosition.toString z
+        | _ -> {js| Wrong syntax!! |js})
+      | None, Some y ->
+        (match y, z with
+        | (#Length.t as y), (#Length.t as z) ->
+          Length.toString y ^ {js| |js} ^ Length.toString z
+        | (#MaskPosition.X.t as y), (#Length.t as z) ->
+          MaskPosition.X.toString y ^ {js| |js} ^ Length.toString z
+        (* | (#MaskPosition.Y.t as x), (#Length.t as y) ->
+           {js| |js} *)
+        | (#MaskPosition.t as y), (#MaskPosition.t as z) ->
+          MaskPosition.toString y ^ {js| |js} ^ MaskPosition.toString z
+        | _ -> {js| Wrong syntax!! |js})
+      | None, None ->
+        (match z with
+        | #Length.t as z -> Length.toString z
+        | #MaskPosition.t as z -> MaskPosition.toString z) )
 
 let transformOrigin3d x y z =
   D
