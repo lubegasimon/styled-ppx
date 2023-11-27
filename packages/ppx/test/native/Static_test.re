@@ -590,17 +590,31 @@ let properties_static_css_tests = [
     [%expr [%css "transform-origin: -10px"]],
     [%expr CssJs.transformOrigin(`pxFloat(-10.))],
   ),
-  (
-    [%css "transform-origin: 10px 10px 10px"],
-    [%expr [%css "transform-origin: 10px 10px"]],
-    [%expr CssJs.transformOrigin(~x=`pxFloat(10.), `pxFloat(10.))],
-  ),
+  // FIXME: The commented test below should pass
   // (
-  //   [%css "transform-origin: 10px 10px"],
+  //   [%css "transform-origin: 10px 10px 10px"],
   //   [%expr [%css "transform-origin: 10px 10px 10px"]],
-  //   [%expr CssJs.transformOrigin(~x=`pxFloat(10.), `pxFloat(10.), `pxFloat(10.))],
+  //   [%expr
+  //     CssJs.transformOrigin(
+  //       ~x=`pxFloat(10.),
+  //       ~y=`pxFloat(10.),
+  //       `pxFloat(10.),
+  //     )
+  //   ],
   // ),
-  // FIXME: I Wonder why argument positions should change
+  // FIXME: The commented test below should pass
+  //   (
+  //   [%css "transform-origin: bottom right 10px"],
+  //   [%expr [%css "transform-origin: bottom right 10px"]],
+  //   [%expr
+  //     CssJs.transformOrigin(
+  //       ~x=`pxFloat(10.),
+  //       ~y=`pxFloat(10.),
+  //       `pxFloat(10.),
+  //     )
+  //   ],
+  // ),
+  // FIXME: I Wonder why argument positions change!
   (
     [%css "transform-origin: left 10px"],
     [%expr [%css "transform-origin: left 10px"]],

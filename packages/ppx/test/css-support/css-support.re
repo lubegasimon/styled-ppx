@@ -548,6 +548,7 @@
 [%css {|transform-origin: 50% 100%|}];
 [%css {|transform-origin: left 0%|}];
 [%css {|transform-origin: left 50% 0|}];
+[%css {|transform-origin: 10px 10px 10px|}];
 [%css {|transform-box: border-box|}];
 [%css {|transform-box: fill-box|}];
 [%css {|transform-box: view-box|}];

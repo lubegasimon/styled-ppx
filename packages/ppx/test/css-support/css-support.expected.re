@@ -483,6 +483,7 @@ CssJs.transformOrigin(~x=`top, `left);
 CssJs.transformOrigin(~x=`percent(50.), `percent(100.));
 CssJs.transformOrigin(~x=`percent(0.), `left);
 CssJs.unsafe({js|transformOrigin|js}, {js|left 50% 0|js});
+CssJs.unsafe({js|transformOrigin|js}, {js|10px 10px 10px|js});
 CssJs.unsafe({js|transformBox|js}, {js|border-box|js});
 CssJs.unsafe({js|transformBox|js}, {js|fill-box|js});
 CssJs.unsafe({js|transformBox|js}, {js|view-box|js});
