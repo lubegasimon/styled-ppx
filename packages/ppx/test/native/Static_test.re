@@ -570,6 +570,63 @@ let properties_static_css_tests = [
     [%expr [%css "justify-content: center"]],
     [%expr CssJs.justifyContent(`center)],
   ),
+  (
+    [%css "transform-origin: 10%"],
+    [%expr [%css "transform-origin: 10%"]],
+    [%expr CssJs.transformOrigin(`percent(10.))],
+  ),
+  (
+    [%css "transform-origin: -10px 10%"],
+    [%expr [%css "transform-origin: -10px 10%"]],
+    [%expr CssJs.transformOrigin(~x=`pxFloat(-10.), `percent(10.))],
+  ),
+  (
+    [%css "transform-origin: 10px"],
+    [%expr [%css "transform-origin: 10px"]],
+    [%expr CssJs.transformOrigin(`pxFloat(10.))],
+  ),
+  (
+    [%css "transform-origin: -10px"],
+    [%expr [%css "transform-origin: -10px"]],
+    [%expr CssJs.transformOrigin(`pxFloat(-10.))],
+  ),
+  (
+    [%css "transform-origin: 10px 10px 10px"],
+    [%expr [%css "transform-origin: 10px 10px"]],
+    [%expr CssJs.transformOrigin(~x=`pxFloat(10.), `pxFloat(10.))],
+  ),
+  // (
+  //   [%css "transform-origin: 10px 10px"],
+  //   [%expr [%css "transform-origin: 10px 10px 10px"]],
+  //   [%expr CssJs.transformOrigin(~x=`pxFloat(10.), `pxFloat(10.), `pxFloat(10.))],
+  // ),
+  // FIXME: I Wonder why argument positions should change
+  (
+    [%css "transform-origin: left 10px"],
+    [%expr [%css "transform-origin: left 10px"]],
+    [%expr CssJs.transformOrigin(~x=`pxFloat(10.), `left)],
+  ),
+  // FIXME: The test below should fail
+  (
+    [%css "transform-origin: top 10px"],
+    [%expr [%css "transform-origin: top 10px"]],
+    [%expr CssJs.transformOrigin(~x=`top, `pxFloat(10.))],
+  ),
+  (
+    [%css "transform-origin: top left"],
+    [%expr [%css "transform-origin: top left"]],
+    [%expr CssJs.transformOrigin(~x=`top, `left)],
+  ),
+  (
+    [%css "transform-origin: bottom right"],
+    [%expr [%css "transform-origin: bottom right"]],
+    [%expr CssJs.transformOrigin(~x=`bottom, `right)],
+  ),
+  (
+    [%css "transform-origin: center center"],
+    [%expr [%css "transform-origin: center center"]],
+    [%expr CssJs.transformOrigin(~x=`center, `center)],
+  ),
   // unsupported
   /* (
        [%css "-moz-text-blink: blink"],

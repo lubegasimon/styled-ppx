@@ -11,6 +11,8 @@ let testData = list{
   (%cx("text-transform: inherit"), CssJs.style([CssJs.textTransform(#inherit_)])),
   (%cx("text-transform: revert"), CssJs.style([CssJs.textTransform(#revert)])),
   (%cx("text-transform: revert-layer"), CssJs.style([CssJs.textTransform(#revert_layer)])),
+  (%cx("transform-origin: 10px"), CssJs.style([CssJs.transformOrigin(#pxFloat(10.))])),
+  (%cx("transform-origin: top left"), CssJs.style([CssJs.transformOrigin(~x=#top, #left)]))
 }
 
 describe("cx", () => {
