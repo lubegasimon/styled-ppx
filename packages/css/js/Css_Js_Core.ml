@@ -2222,3 +2222,5 @@ let fontVariantEmoji x =
       | #FontVariantEmoji.t as fve -> FontVariantEmoji.toString fve
       | #Var.t as var -> Var.toString var
       | #Cascading.t as c -> Cascading.toString c )
+
+let textEmphasisColor x = D ({js|textEmphasisColor|js}, string_of_color x)
