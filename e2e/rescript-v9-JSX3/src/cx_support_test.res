@@ -13,7 +13,7 @@ let testData = list{
   (%cx("text-transform: revert-layer"), CssJs.style([CssJs.textTransform(#revert_layer)])),
   (%cx("line-break: auto"), CssJs.style([CssJs.lineBreak(#auto)])),
   (%cx("hyphens: none"), CssJs.style([CssJs.hyphens(#none)])),
-  (%cx("text-align: match-parent"), CssJs.style([CssJs.textAlign(#matchParent)]))
+  (%cx("text-align: match-parent"), CssJs.style([CssJs.textAlign(#matchParent)])),
 }
 
 describe("cx", () => {
