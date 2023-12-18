@@ -267,7 +267,11 @@ and render_declarations = ((ds, _loc: Ppxlib.location)) => {
 and render_variable_as_string = variable => {
   "$(" ++ String.concat(".", variable) ++ ")";
 }
+
+// Selector: (CompoundSelector ({ .. }, 0))
+
 and render_selector = (selector: selector) => {
+  Printf.printf("Selector: %s\n\n", show_selector(selector));
   let rec render_simple_selector =
     fun
     | Ampersand => "&"
@@ -287,6 +291,22 @@ and render_selector = (selector: selector) => {
     | Id(v) => Printf.sprintf("#%s", v)
     | Class(v) => Printf.sprintf(".%s", v)
     | ClassVariable(v) => "." ++ render_variable_as_string(v)
+    | Attribute(Attr_value(v)) => Printf.sprintf("[%s]", v)
+    | Attribute(To_equal({name, kind, value})) => {
+        let value =
+          switch (value) {
+          | Attr_ident(ident) => ident
+          | Attr_string(ident) => {|"|} ++ ident ++ {|"|}
+          };
+        Printf.sprintf("[%s%s%s]", name, kind, value);
+      }
+    | Pseudo_class(psc) => render_pseudo_selector(psc)
+  // FIXME: DUPLCATE!!!
+  and render_subclass_selector' =
+    fun
+    | Id(v) => Printf.sprintf("#%s", v)
+    | Class(v) => Printf.sprintf(".%s", v)
+    | ClassVariable(v) => " ." ++ render_variable_as_string(v)
     | Attribute(Attr_value(v)) => Printf.sprintf("[%s]", v)
     | Attribute(To_equal({name, kind, value})) => {
         let value =
@@ -345,6 +365,25 @@ and render_selector = (selector: selector) => {
       |> String.concat("");
     simple_selector ++ subclass_selectors ++ pseudo_selectors;
   }
+  // FIXME: DUPLCATE!!!
+  and render_compound_selector' = compound_selector => {
+    let simple_selector =
+      Option.fold(
+        ~none="",
+        ~some=render_simple_selector,
+        compound_selector.type_selector,
+      );
+    let subclass_selectors =
+      List.map(
+        render_subclass_selector',
+        compound_selector.subclass_selectors,
+      )
+      |> String.concat("");
+    let pseudo_selectors =
+      List.map(render_pseudo_selector, compound_selector.pseudo_selectors)
+      |> String.concat("");
+    simple_selector ++ subclass_selectors ++ pseudo_selectors;
+  }
   and render_complex_selector = complex => {
     switch (complex) {
     | Combinator({left, right}) =>
@@ -364,9 +403,12 @@ and render_selector = (selector: selector) => {
   };
 
   switch (selector) {
-  | SimpleSelector(simple) => simple |> render_simple_selector
-  | ComplexSelector(complex) => complex |> render_complex_selector
-  | CompoundSelector(compound) => compound |> render_compound_selector
+  | SimpleSelector(simple, _) => simple |> render_simple_selector
+  | ComplexSelector(complex, _) => complex |> render_complex_selector
+  | CompoundSelector(compound, nesting_level) =>
+    nesting_level > 1
+      ? compound |> render_compound_selector'
+      : compound |> render_compound_selector
   };
 }
 and render_selectors = selectors => {
@@ -384,7 +426,7 @@ and render_style_rule = (ident, rule: style_rule) => {
   let selector_name =
     prelude
     |> render_selectors
-    |> String.trim
+    // |> String.trim
     |> String_interpolation.transform(~attrs, ~delimiter, ~loc);
 
   Helper.Exp.apply(
@@ -443,7 +485,7 @@ let render_keyframes = (declarations: rule_list) => {
 
   let render_select_as_keyframe = prelude => {
     switch (prelude |> fst) {
-    | SimpleSelector(selector) =>
+    | SimpleSelector(selector, _) =>
       switch (selector) {
       // https://drafts.csswg.org/css-animations/#keyframes
       // `from` is equivalent to the value 0%
