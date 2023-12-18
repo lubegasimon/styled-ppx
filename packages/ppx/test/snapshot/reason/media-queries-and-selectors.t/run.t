@@ -1,5 +1,31 @@
   $ refmt --parse re --print ml input.re > output.ml
   $ standalone --impl output.ml -o output.ml
+  Selector: (ComplexSelector (
+     (Selector
+        (CompoundSelector (
+           { type_selector = (Some Ampersand);
+             subclass_selectors =
+             [(Pseudo_class (Pseudoclass (PseudoIdent "hover")))];
+             pseudo_selectors = [] },
+           0))),
+     1))
+  
+  Selector: (CompoundSelector (
+     { type_selector = (Some Ampersand);
+       subclass_selectors =
+       [(Pseudo_class (Pseudoclass (PseudoIdent "hover")))];
+       pseudo_selectors = [] },
+     0))
+  
+  Selector: (ComplexSelector (
+     Combinator {left = (SimpleSelector (Ampersand, 1));
+       right = [((Some ">"), (SimpleSelector ((Type "p"), 1)))]},
+     2))
+  
+  Selector: (SimpleSelector (Ampersand, 1))
+  
+  Selector: (SimpleSelector ((Type "p"), 1))
+  
   $ refmt --parse ml --print re output.ml
   module SelectorsMediaQueries = {
     [@deriving abstract]
