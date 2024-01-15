@@ -1499,11 +1499,6 @@ let zoomOut = Cursor.zoomOut
 let vw x = `vw x
 let fr x = `fr x
 
-module Calc = struct
-  let ( - ) a b = `calc (`sub (a, b))
-  let ( + ) a b = `calc (`add (a, b))
-  let ( * ) a b = `calc (`mult (a, b))
-end
 
 let size x y = `size (x, y)
 let all = `all
