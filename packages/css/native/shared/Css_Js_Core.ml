@@ -1498,8 +1498,6 @@ let zoomIn = Cursor.zoomIn
 let zoomOut = Cursor.zoomOut
 let vw x = `vw x
 let fr x = `fr x
-
-
 let size x y = `size (x, y)
 let all = `all
 let backwards = `backwards
