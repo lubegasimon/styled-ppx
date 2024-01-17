@@ -351,6 +351,31 @@ and render_calc_value = (~loc, calc_value) => {
   | `Extended_length(l) => render_extended_length(~loc, l)
   | `Extended_percentage(p) => render_extended_percentage(~loc, p)
   | `Function_calc(fc) => render_function_calc(~loc, fc)
+  | `Function_min(fm) => render_function_min(~loc, fm)
+  };
+}
+and render_function_min = (~loc, calc_sum) => {
+  switch (calc_sum) {
+  | (product, []) => render_product_min(~loc, product)
+  | (product, list_of_sums) =>
+    let first = render_product_min(~loc, product);
+    let second = render_list_of_sums_min(~loc, list_of_sums);
+    [%expr `min(([%e first], [%e second]))];
+  };
+}
+and render_list_of_sums_min = (~loc, list_of_sums) => {
+  switch (list_of_sums) {
+  | [(_, one)] => render_product_min(~loc, one)
+  | list => render_list_of_sums_min(~loc, list)
+  };
+}
+and render_product_min = (~loc, product) => {
+  switch (product) {
+  | (calc_value, []) => render_calc_value(~loc, calc_value)
+  | (calc_value, list_of_products) =>
+    let first = render_calc_value(~loc, calc_value);
+    let second = render_list_of_products(~loc, list_of_products);
+    [%expr `min(([%e first], [%e second]))];
   };
 }
 and render_extended_length = (~loc) =>
@@ -376,6 +401,7 @@ let render_size = (~loc) =>
   | `Extended_length(l) => render_extended_length(~loc, l)
   | `Extended_percentage(p) => render_extended_percentage(~loc, p)
   | `Function_calc(fc) => render_function_calc(~loc, fc)
+  | `Function_min(min) => render_function_min(~loc, min)
   | `Fit_content_0 => variant_to_expression(~loc, `FitContent)
   | `Max_content => variant_to_expression(~loc, `MaxContent)
   | `Min_content => variant_to_expression(~loc, `MinContent)

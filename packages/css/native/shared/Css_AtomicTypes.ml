@@ -65,6 +65,20 @@ module Url = struct
   let toString x = match x with `url s -> ({js|url(|js} ^ s) ^ {js|)|js}
 end
 
+(* module Min = struct
+  type nonrec t = [ `min of float * float ]
+
+  let min fst snd = `min (fst, snd)
+
+  let toString x =
+    match x with
+    | `min (fst, snd) ->
+      ({js|min(|js} ^ Std.Float.toString fst)
+      ^ {js|, |js}
+      ^ Std.Float.toString snd
+      ^ {js|)|js}
+end *)
+
 module Length = struct
   type t =
     [ `ch of float

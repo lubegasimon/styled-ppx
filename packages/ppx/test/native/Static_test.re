@@ -556,6 +556,11 @@ let properties_static_css_tests = [
     [%expr CssJs.width(`calc(`add((`percent(100.), `pxFloat(32.)))))],
   ),
   (
+    [%css "width: min(100%)"],
+    [%expr [%css "width: min(100%)"]],
+    [%expr CssJs.width(`percent(100.))],
+  ),
+  (
     [%css "width: calc(100vh - 120px)"],
     [%expr [%css "width: calc(100vh - 120px)"]],
     [%expr CssJs.width(`calc(`sub((`vh(100.), `pxFloat(120.)))))],

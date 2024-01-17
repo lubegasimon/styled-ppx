@@ -841,6 +841,7 @@ let maxWidth x =
       match x with
       | #Width.t as mw -> Width.toString mw
       | #MaxWidth.t as mw -> MaxWidth.toString mw
+      (* | #Min.t as min -> Min.toString min *)
       | #Percentage.t as p -> Percentage.toString p
       | #Length.t as l -> Length.toString l
       | #Var.t as va -> Var.toString va
@@ -1236,6 +1237,7 @@ let width x =
     ( {js|width|js},
       match x with
       | #Width.t as w -> Width.toString w
+      (* | #Min.t as min -> Min.toString min *)
       | #Percentage.t as p -> Percentage.toString p
       | #Length.t as l -> Length.toString l
       | #Var.t as va -> Var.toString va
@@ -1411,8 +1413,10 @@ let oblique = FontStyle.oblique
 let hidden = `hidden
 let visible = `visible
 let scroll = `scroll
-let rgb = Color.rgb
-let rgba = Color.rgba
+
+(* let rgb = Color.rgb *)
+(* let rgba = Color.rgba *)
+(* let min = Min.min *)
 let hsl = Color.hsl
 let hsla = Color.hsla
 let hex = Color.hex

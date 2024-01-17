@@ -138,6 +138,30 @@ let rec render_function_calc = calc_sum => {
     [%expr "calc(" + [%e first] ++ [%e op] ++ [%e second] ++ ")"];
   };
 }
+and render_function_min = calc_sum => {
+  switch (calc_sum) {
+  | (product, []) => render_product_min(product)
+  | (product, list_of_sums) =>
+    let first = render_product_min(product);
+    let second = render_list_of_sums_min(list_of_sums);
+    [%expr "min(" ++ [%e first] ++ ", " ++ [%e second] ++ ")"];
+  };
+}
+and render_product_min = product => {
+  switch (product) {
+  | (calc_value, []) => render_calc_value(calc_value)
+  | (calc_value, list_of_products) =>
+    let first = render_calc_value(calc_value);
+    let second = render_list_of_products(list_of_products);
+    [%expr "min(" ++ [%e first] ++ ", " ++ [%e second] ++ ")"];
+  };
+}
+and render_list_of_sums_min = list_of_sums => {
+  switch (list_of_sums) {
+  | [(_, one)] => render_product_min(one)
+  | list => render_list_of_sums_min(list)
+  };
+}
 and render_sum_op = op => {
   switch (op) {
   | `Dash () => [%expr " - "]
@@ -178,6 +202,7 @@ and render_calc_value = calc_value => {
   | `Extended_length(l) => render_extended_length(l)
   | `Extended_percentage(p) => render_extended_percentage(p)
   | `Function_calc(fc) => render_function_calc(fc)
+  | `Function_min(min) => render_function_min(min)
   };
 }
 and render_extended_length =
@@ -207,7 +232,8 @@ let render_size =
   | `Min_content => [%expr "min-content"]
   | `Fit_content_0 => [%expr "fit-content"]
   | `Fit_content_1(lp) => render_length_percentage(lp)
-  | `Function_calc(fc) => render_function_calc(fc);
+  | `Function_calc(fc) => render_function_calc(fc)
+  | `Function_min(min) => render_function_min(min);
 
 let render_css_global_values = (name, value) => {
   let.ok value = Parser.parse(Standard.css_wide_keywords, value);

@@ -127,7 +127,7 @@ and calc_product = [%value.rec
 and calc_sum = [%value.rec "<calc-product> [ [ '+' | '-' ] <calc-product> ]*"]
 /* and calc_value = [%value.rec "<number> | <dimension> | <extended-percentage> | <calc>"] */
 and calc_value = [%value.rec
-  "<number> | <extended-length> | <extended-percentage> | <calc()>"
+  "<number> | <extended-length> | <extended-percentage> | <calc()> | <min()>"
 ]
 and cf_final_image = [%value.rec "<image> | <color>"]
 and cf_mixing_image = [%value.rec "[ <extended-percentage> ]? && <image>"]
@@ -318,7 +318,7 @@ and function_linear_gradient = [%value.rec
 and function_matrix = [%value.rec "matrix( [ <number> ]#{6} )"]
 and function_matrix3d = [%value.rec "matrix3d( [ <number> ]#{16} )"]
 and function_max = [%value.rec "max( [ <calc-sum> ]# )"]
-and function_min = [%value.rec "min( [ <calc-sum> ]# )"]
+and function_min = [%value.rec "min( <calc-sum> )"] //FIXME:
 and function_minmax = [%value.rec
   "minmax( [ <extended-length> | <extended-percentage> | 'min-content' | 'max-content' | 'auto' ] ',' [ <extended-length> | <extended-percentage> | <flex-value> | 'min-content' | 'max-content' | 'auto' ] )"
 ]
@@ -1147,7 +1147,7 @@ and property_hanging_punctuation = [%value.rec
   "'none' | 'first' || [ 'force-end' | 'allow-end' ] || 'last'"
 ]
 and property_height = [%value.rec
-  "'auto' | <extended-length> | <extended-percentage> | 'min-content' | 'max-content' | 'fit-content' | fit-content( <extended-length> | <extended-percentage> ) | <calc()>"
+  "'auto' | <extended-length> | <extended-percentage> | 'min-content' | 'max-content' | 'fit-content' | fit-content( <extended-length> | <extended-percentage> ) | <calc()> | <min()>"
 ]
 and property_hyphens = [%value.rec "'none' | 'manual' | 'auto'"]
 and property_image_orientation = [%value.rec
@@ -1262,12 +1262,12 @@ and property_mask_size = [%value.rec "[ <bg-size> ]#"]
 and property_mask_type = [%value.rec "'luminance' | 'alpha'"]
 and property_max_block_size = [%value.rec "<'max-width'>"]
 and property_max_height = [%value.rec
-  "'auto' | <extended-length> | <extended-percentage> | 'min-content' | 'max-content' | 'fit-content' | fit-content( <extended-length> | <extended-percentage> ) | <calc()>"
+  "'auto' | <extended-length> | <extended-percentage> | 'min-content' | 'max-content' | 'fit-content' | fit-content( <extended-length> | <extended-percentage> ) | <calc()> | <min()>"
 ]
 and property_max_inline_size = [%value.rec "<'max-width'>"]
 and property_max_lines = [%value.rec "'none' | <integer>"]
 and property_max_width = [%value.rec
-  "<extended-length> | <extended-percentage> | 'none' | 'max-content' | 'min-content' | 'fit-content' | fit-content( <extended-length> | <extended-percentage> ) | 'fill-available' | <-non-standard-width> | <calc()>"
+  "<extended-length> | <extended-percentage> | 'none' | 'max-content' | 'min-content' | 'fit-content' | fit-content( <extended-length> | <extended-percentage> ) | 'fill-available' | <-non-standard-width> | <calc()> | <min()>"
 ]
 and property_min_block_size = [%value.rec "<'min-width'>"]
 and property_min_height = [%value.rec
@@ -1694,7 +1694,7 @@ and property_white_space = [%value.rec
 ]
 and property_widows = [%value.rec "<integer>"]
 and property_width = [%value.rec
-  "'auto' | <extended-length> | <extended-percentage> | 'min-content' | 'max-content' | 'fit-content' | fit-content( <extended-length> | <extended-percentage> ) | <calc()>"
+  "'auto' | <extended-length> | <extended-percentage> | 'min-content' | 'max-content' | 'fit-content' | fit-content( <extended-length> | <extended-percentage> ) | <calc()> | <min()>"
 ]
 and property_will_change = [%value.rec "'auto' | [ <animateable-feature> ]#"]
 and property_word_break = [%value.rec
