@@ -556,9 +556,52 @@ let properties_static_css_tests = [
     [%expr CssJs.width(`calc(`add((`percent(100.), `pxFloat(32.)))))],
   ),
   (
+    [%css "width: calc(100% + min(32px))"],
+    [%expr [%css "width: calc(100% + min(32px))"]],
+    [%expr CssJs.width(`calc(`add((`percent(100.), `pxFloat(32.)))))],
+  ),
+  (
+    [%css "width: calc(100% + min(32px, 100%))"],
+    [%expr [%css "width: calc(100% + min(32px, 100%))"]],
+    [%expr
+      CssJs.width(
+        `calc(
+          `add((`percent(100.), `min((`pxFloat(32.), `percent(100.))))),
+        ),
+      )
+    ],
+  ),
+  (
     [%css "width: min(100%)"],
     [%expr [%css "width: min(100%)"]],
-    [%expr CssJs.width(`percent(100.))],
+    [%expr CssJs.width(`percent(100.))] // FIXME:
+  ),
+  (
+    [%css "width: min(100%, 30%)"],
+    [%expr [%css "width: min(100%, 30%)"]],
+    [%expr CssJs.width(`min((`percent(100.), `percent(30.))))],
+  ),
+  (
+    [%css "width: min(100em, 30px)"],
+    [%expr [%css "width: min(100em, 30px)"]],
+    [%expr CssJs.width(`min((`em(100.), `pxFloat(30.))))],
+  ),
+  (
+    [%css "width: min(100%, calc(100% + 32px))"],
+    [%expr [%css "width: min(100%, calc(100% + 32px))"]],
+    [%expr
+      CssJs.width(
+        `min((
+          `percent(100.),
+          `calc(`add((`percent(100.), `pxFloat(32.)))),
+        )),
+      )
+    ],
+  ),
+  (
+    [%css "width: min(100em, 30px, 10%)"],
+    [%expr [%css "width: min(100em, 30px, 10%)"]],
+    [%expr CssJs.unsafe({js|width|js}, {js|min(100em, 30px, 10%)|js})] // FIXME:
   ),
   (
     [%css "width: calc(100vh - 120px)"],

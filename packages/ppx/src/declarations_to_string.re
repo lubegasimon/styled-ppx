@@ -126,6 +126,9 @@ let render_length =
   | `Zero => render_string("0");
 
 let rec render_function_calc = calc_sum => {
+  render_calc_sum(calc_sum);
+}
+and render_calc_sum = calc_sum =>
   switch (calc_sum) {
   | (product, []) => render_product(product)
   | (product, list_of_sums) =>
@@ -135,31 +138,15 @@ let rec render_function_calc = calc_sum => {
     let op = pick_operation(List.hd(list_of_sums));
     let first = render_product(product);
     let second = render_list_of_sums(list_of_sums);
-    [%expr "calc(" + [%e first] ++ [%e op] ++ [%e second] ++ ")"];
-  };
-}
+    [%expr "calc(" ++ [%e first] ++ [%e op] ++ [%e second] ++ ")"];
+  }
 and render_function_min = calc_sum => {
   switch (calc_sum) {
-  | (product, []) => render_product_min(product)
-  | (product, list_of_sums) =>
-    let first = render_product_min(product);
-    let second = render_list_of_sums_min(list_of_sums);
-    [%expr "min(" ++ [%e first] ++ ", " ++ [%e second] ++ ")"];
-  };
-}
-and render_product_min = product => {
-  switch (product) {
-  | (calc_value, []) => render_calc_value(calc_value)
-  | (calc_value, list_of_products) =>
-    let first = render_calc_value(calc_value);
-    let second = render_list_of_products(list_of_products);
-    [%expr "min(" ++ [%e first] ++ ", " ++ [%e second] ++ ")"];
-  };
-}
-and render_list_of_sums_min = list_of_sums => {
-  switch (list_of_sums) {
-  | [(_, one)] => render_product_min(one)
-  | list => render_list_of_sums_min(list)
+  | [] => failwith("expected at least one argument") // FIXME:
+  | [x] => [%expr `min([%e render_calc_sum(x)])]
+  | [x, x'] =>
+    [%expr `min(([%e render_calc_sum(x)], [%e render_calc_sum(x')]))]
+  | _ => failwith("Unsupported_feature")
   };
 }
 and render_sum_op = op => {

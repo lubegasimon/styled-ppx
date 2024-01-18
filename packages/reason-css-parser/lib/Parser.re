@@ -318,7 +318,7 @@ and function_linear_gradient = [%value.rec
 and function_matrix = [%value.rec "matrix( [ <number> ]#{6} )"]
 and function_matrix3d = [%value.rec "matrix3d( [ <number> ]#{16} )"]
 and function_max = [%value.rec "max( [ <calc-sum> ]# )"]
-and function_min = [%value.rec "min( <calc-sum> )"] //FIXME:
+and function_min = [%value.rec "min( [ <calc-sum> ]# )"]
 and function_minmax = [%value.rec
   "minmax( [ <extended-length> | <extended-percentage> | 'min-content' | 'max-content' | 'auto' ] ',' [ <extended-length> | <extended-percentage> | <flex-value> | 'min-content' | 'max-content' | 'auto' ] )"
 ]

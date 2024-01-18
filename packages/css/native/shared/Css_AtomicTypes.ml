@@ -65,20 +65,6 @@ module Url = struct
   let toString x = match x with `url s -> ({js|url(|js} ^ s) ^ {js|)|js}
 end
 
-(* module Min = struct
-  type nonrec t = [ `min of float * float ]
-
-  let min fst snd = `min (fst, snd)
-
-  let toString x =
-    match x with
-    | `min (fst, snd) ->
-      ({js|min(|js} ^ Std.Float.toString fst)
-      ^ {js|, |js}
-      ^ Std.Float.toString snd
-      ^ {js|)|js}
-end *)
-
 module Length = struct
   type t =
     [ `ch of float
@@ -97,6 +83,7 @@ module Length = struct
     | `pc of float
     | `pt of int
     | `zero
+    | `min of t * t
     | `calc of [ `add of t * t | `sub of t * t | `mult of t * t | `one of t ]
     | `percent of float
     ]
@@ -136,6 +123,8 @@ module Length = struct
     | `pc x -> Std.Float.toString x ^ {js|pc|js}
     | `pt x -> Std.Int.toString x ^ {js|pt|js}
     | `zero -> {js|0|js}
+    | `min (fst, snd) ->
+      ({js|min(|js} ^ toString fst) ^ {js|, |js} ^ toString snd ^ {js|)|js}
     | `calc (`one a) -> ({js|calc(|js} ^ toString a) ^ {js|)|js}
     | `calc (`add (a, b)) ->
       ((({js|calc(|js} ^ toString a) ^ {js| + |js}) ^ toString b) ^ {js|)|js}
@@ -144,6 +133,18 @@ module Length = struct
     | `calc (`mult (a, b)) ->
       ((({js|calc(|js} ^ toString a) ^ {js| * |js}) ^ toString b) ^ {js|)|js}
     | `percent x -> Std.Float.toString x ^ {js|%|js}
+end
+
+module Min = struct
+  type nonrec t = [ `min of Length.t * Length.t ]
+
+  let toString x =
+    match x with
+    | `min (fst, snd) ->
+      ({js|min(|js} ^ Length.toString fst)
+      ^ {js|, |js}
+      ^ Length.toString snd
+      ^ {js|)|js}
 end
 
 module Angle = struct

@@ -841,7 +841,6 @@ let maxWidth x =
       match x with
       | #Width.t as mw -> Width.toString mw
       | #MaxWidth.t as mw -> MaxWidth.toString mw
-      (* | #Min.t as min -> Min.toString min *)
       | #Percentage.t as p -> Percentage.toString p
       | #Length.t as l -> Length.toString l
       | #Var.t as va -> Var.toString va
@@ -1237,7 +1236,7 @@ let width x =
     ( {js|width|js},
       match x with
       | #Width.t as w -> Width.toString w
-      (* | #Min.t as min -> Min.toString min *)
+      | #Min.t as min -> Min.toString min
       | #Percentage.t as p -> Percentage.toString p
       | #Length.t as l -> Length.toString l
       | #Var.t as va -> Var.toString va
