@@ -2193,7 +2193,7 @@ let render_text_decoration_line =
   | `None => variant_to_expression(~loc, `None)
   | `Xor([`Underline]) => variant_to_expression(~loc, `Underline)
   | `Xor([`Overline]) => variant_to_expression(~loc, `Overline)
-  | `Xor([`Line_through]) => variant_to_expression(~loc, `Line_Through)
+  | `Xor([`Linethrough]) => variant_to_expression(~loc, `Line_Through)
   | `Xor([`Blink]) => variant_to_expression(~loc, `Blink)
   /* bs-css doesn't support multiple text decoration line */
   | `Xor(_) => raise(Unsupported_feature)

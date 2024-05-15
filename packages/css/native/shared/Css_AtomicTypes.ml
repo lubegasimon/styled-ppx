@@ -1928,7 +1928,7 @@ module TextDecorationLine = struct
     | `none -> {js|none|js}
     | `underline -> {js|underline|js}
     | `overline -> {js|overline|js}
-    | `lineThrough -> {js|line-through|js}
+    | `lineThrough -> {js|linethrough|js}
     | `blink -> {js|blink|js}
 end
 
